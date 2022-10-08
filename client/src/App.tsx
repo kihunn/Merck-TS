@@ -1,16 +1,29 @@
-import react from 'react';
+import React, { useEffect } from 'react';
 import msdlogo from './images/msdlogo.png';
 import Form from './components/form/form';
 import Samples from './components/samples/samples';
 
+import { getSamples } from './actions/samples';
+import { useDispatch } from 'react-redux';
+
 import { Container, AppBar, Typography, Grow, Grid } from '@mui/material';
+import useStyles from './styles'
+import { AnyAction } from 'redux';
 
 const App = () => {
+    const classes = useStyles();
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        // @ts-ignore
+        dispatch(getSamples());
+    }, [dispatch])
+
     return (
         <Container maxWidth="lg">
-            <AppBar position="static" color="inherit">
-                <Typography variant="h2" align="center">Merck Label Dashboard</Typography>
-                <img src={msdlogo} alt="MSD Logo" height="60" />
+            <AppBar className={classes.appBar} position="static" color="inherit">
+                <Typography className={classes.heading} variant="h2" align="center">Merck Label Dashboard</Typography>
+                <img className={classes.image} src={msdlogo} alt="MSD Logo" height="60" />
             </AppBar>
             <Grow in>
                 <Container>
