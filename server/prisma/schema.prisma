@@ -1,0 +1,19 @@
+datasource db {
+    provider = "postgresql"
+    url = env("POSTGRES_DEV_URI")
+}
+
+model samples {
+    qr_code_key Int @id
+    experiment_id Int
+    storage_condition String
+    contents String
+    analyst String
+    date_entered DateTime @default(now())
+    date_modified DateTime @default(now())
+    expiration_date DateTime
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
