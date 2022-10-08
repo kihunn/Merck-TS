@@ -4,15 +4,28 @@ datasource db {
 }
 
 model samples {
-    qr_code_key Int @id
-    experiment_id Int
+    qr_code_key String @id
+    experiment_id String
     storage_condition String
     contents String
     analyst String
-    date_entered DateTime @default(now())
-    date_modified DateTime @default(now())
-    expiration_date DateTime
+    date_entered String
+    date_modified String
+    expiration_date String
 }
+
+// Original model, but it dont work
+// model samples {
+//     qr_code_key Int @id
+//     experiment_id Int
+//     storage_condition String
+//     contents String
+//     analyst String
+//     date_entered DateTime @default(now())
+//     date_modified DateTime @default(now())
+//     expiration_date DateTime @default(now())
+// }
+
 
 generator client {
     provider = "prisma-client-js"
