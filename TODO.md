@@ -1,7 +1,7 @@
 # Server
 - [x] Implement printing using node-brother-lable-printer library
 - [√] Generate qr code keys using a seeded or consistent hash algorithm
-- [x] Generate qr codes and be able to send them to front-end
+- [√] Generate qr codes and be able to send them to front-end
 
 # Client
 - [x] Button to edit a sample in table format
