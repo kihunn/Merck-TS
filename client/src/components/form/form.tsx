@@ -6,6 +6,8 @@ import { TextField, Button, Typography, Paper } from '@mui/material';
 import useStyles from './styles'
 import { createSample } from '../../actions/samples';
 
+import * as api from '../../api/index';
+
 const Form = () => {
     const classes = useStyles();
     const dispatch = useDispatch();
@@ -20,15 +22,14 @@ const Form = () => {
         date_modified: (new Date(Date.now())).toDateString(),
     });
 
-    let i = 1
     // Generate a QR Code here
-    const handleSubmit = (event: any) => {
+    const handleSubmit = async (event: any) => {
         event.preventDefault()
-        let qr_code_key = `${i}`;
+        let { qr_code_key } = (await api.createQRCodeKey(sampleData)).data;
+        console.log(qr_code_key)
 
         // @ts-ignore
         dispatch(createSample({...sampleData, qr_code_key}))
-        i++
     }
 
     const clear = () => {

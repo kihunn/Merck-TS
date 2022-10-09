@@ -1,24 +1,32 @@
-import React from 'react';
-import Sample from './sample/sample';
+import React, { useState } from 'react';
 
 import useStyles from './styles'
 
+import * as api from '../../api/index';
+
 import { useSelector } from 'react-redux';
 // import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
-import { TableContainer, Table, Paper, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
+import { TableContainer, Table, Paper, TableHead, TableRow, TableCell, TableBody, IconButton } from '@mui/material';
+import { Edit, Print } from '@mui/icons-material';
 
 const Samples = () => {
+    const [labelImage, setLabelImage] = useState('');
     const samples = useSelector((state: any) => state.samples);
     const classes = useStyles();
-
     console.log(samples);
 
-    return (
+    const handlePrint = async (event: any, sample: any) => {
+        const { qr_code_image } = (await api.createLabel(sample)).data;
+        setLabelImage(qr_code_image);
+    }
 
+    return (
+        <>
         <TableContainer component={Paper}>
             <Table>
                 <TableHead>
                     <TableRow>
+                        <TableCell>QR Code Key</TableCell>
                         <TableCell>Experiment ID</TableCell>
                         <TableCell>Storage Condition</TableCell>
                         <TableCell>Contents</TableCell>
@@ -26,25 +34,41 @@ const Samples = () => {
                         <TableCell>Date Created</TableCell>
                         <TableCell>Date Modified</TableCell>
                         <TableCell>Expiration Date</TableCell>
+                        <TableCell></TableCell>
+                        <TableCell></TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {
                         samples.map((sample: any) => (
-                            <TableRow key={sample.experiment_id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                <TableCell component="th" scope="row">{sample.expirement_id}</TableCell>
+                            <TableRow key={sample.qr_code_key} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                <TableCell component="th" scope="row">{sample.qr_code_key}</TableCell>
+                                <TableCell align="right">{sample.experiment_id}</TableCell>
                                 <TableCell align="right">{sample.storage_condition}</TableCell>
                                 <TableCell align="right">{sample.contents}</TableCell>
                                 <TableCell align="right">{sample.analyst}</TableCell>
                                 <TableCell align="right">{sample.date_created}</TableCell>
                                 <TableCell align="right">{sample.date_modified}</TableCell>
                                 <TableCell align="right">{sample.expiration_date}</TableCell>
+                                <TableCell> <IconButton> <Edit /> </IconButton> </TableCell>
+                                <TableCell> <IconButton onClick={(event) => handlePrint(event, sample)}> <Print /> </IconButton> </TableCell>
                             </TableRow>
                         ))
                     }
                 </TableBody>
             </Table>    
         </TableContainer>
+        
+        <Paper>
+            <>
+            {
+                labelImage !== '' ? <img src={`data:image/png;base64,${labelImage}`} alt="Label" /> : null
+            }
+            </>
+        </Paper>
+     
+    
+        </>
     )
 }
 
