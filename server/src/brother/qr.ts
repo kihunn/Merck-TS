@@ -82,14 +82,14 @@ async function loadFonts(): Promise<Fonts> {
  * @param sample 
  * @returns 
  */
-export async function generateQRImage(sample: Omit<Sample, 'qr_code_key'>): Promise<Jimp> {
-    const hashKey = generateHashKey(sample);
+export async function generateQRImage(sample: Sample): Promise<Jimp> {
+    const hashKey = sample.qr_code_key ? sample.qr_code_key : generateHashKey(sample as Omit<Sample, 'qr_code_key'>);
     const qrcode = await QRCode.toBuffer(hashKey, { type: 'png', margin: 0, errorCorrectionLevel: 'H' })
     return await Jimp.read(qrcode)
 }
 
 var FONTS: Fonts;
-export async function generateLabel(sample: Omit<Sample, 'qr_code_key'>, options: LabelOptions = LargeLabelOptions): Promise<Jimp> {
+export async function generateLabel(sample: Sample, options: LabelOptions = LargeLabelOptions): Promise<Jimp> {
     if (!FONTS) FONTS = await loadFonts();
     var qrImage = await generateQRImage(sample);
     var whiteLabel = (await Jimp.read(path.join(__dirname, './assets/white_image.jpeg'))).resize(options.width, options.height);
@@ -122,7 +122,7 @@ export async function generateLabel(sample: Omit<Sample, 'qr_code_key'>, options
 
     const textYIncrement = FONTS[options.fonts.largeFont].common.lineHeight + options.verticalTextPadding;
 
-    whiteLabel.print(FONTS[options.fonts.largeFont], curTextPos.x, curTextPos.y, `Experiment ID: ${sample.expirement_id}`, maxTextDim.width)
+    whiteLabel.print(FONTS[options.fonts.largeFont], curTextPos.x, curTextPos.y, `Experiment ID: ${sample.experiment_id}`, maxTextDim.width)
     curTextPos.y += textYIncrement
 
     whiteLabel.print(FONTS[options.fonts.largeFont], curTextPos.x, curTextPos.y, `Contents: ${sample.contents}`, maxTextDim.width)

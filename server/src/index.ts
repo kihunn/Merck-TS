@@ -31,8 +31,9 @@ import Jimp from 'jimp'
 import path from 'path'
 
 async function testQRGeneration() {
-    const sample: Omit<Sample, 'qr_code_key'> = {
-        expirement_id: '1',
+    const sample: Sample = {
+        qr_code_key: 'b10ee1b4',
+        experiment_id: '1',
         contents: 'NaCl',
         analyst: 'Thomas Hughes',
         storage_condition: 'Freezer',

@@ -13,3 +13,8 @@
     - Edit log
     - QR Code scanning
 - [x] Fix default value for textfields that are supposed to have dates
+
+# Label Management
+- Labels are generated once upon request and cached
+- Labels will be re-generated when edited
+- If we get the same label twice just generate once then return cached base64 string or img obj

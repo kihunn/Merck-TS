@@ -15,3 +15,9 @@ export const createQRCodeKey = (sample: any) => {
 export const createLabel = (sample: any) => {
     return axios.post(`${qrURL}/label`, sample)
 }
+
+export const getPrinters = () => axios.get(`${qrURL}/printers`)
+
+export const printLabel = (base64label: string, printer: any) => {
+    return axios.post(`${qrURL}/print`, { base64label, printer })
+}

@@ -1,5 +1,7 @@
 import { generateHashKey, generateLabel } from "../brother/qr";
-import { Sample } from "../db";
+import prisma, { Sample } from "../db";
+
+const labelCache: { [key: string]: string } = {};
 
 async function createQRCodeKey(req: any, res: any) {
     const sample: Omit<Sample, 'qr_code_key'> = req.body;
@@ -12,7 +14,7 @@ async function createQRCodeKey(req: any, res: any) {
 }
 
 async function createQRCodeLabel(req: any, res: any) {
-    const sample: Omit<Sample, 'qr_code_key'> = req.body;
+    const sample: Sample = req.body;
     try {
         const labelImage = await generateLabel(sample)
         const buffer = await labelImage.getBufferAsync('image/png')
@@ -23,8 +25,20 @@ async function createQRCodeLabel(req: any, res: any) {
     }
 }
 
+async function printQRCodeLabel(req: any, res: any) {
+
+}
+
+async function getPrinters(req: any, res: any) {
+    const printers = await prisma.printers.findMany()
+    console.log(printers)
+    res.status(200).json(printers)
+}
+
 
 export {
     createQRCodeKey,
-    createQRCodeLabel
+    createQRCodeLabel,
+    getPrinters,
+    printQRCodeLabel
 }

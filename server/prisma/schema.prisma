@@ -14,18 +14,12 @@ model samples {
     expiration_date String
 }
 
-// Original model, but it dont work
-// model samples {
-//     qr_code_key Int @id
-//     experiment_id Int
-//     storage_condition String
-//     contents String
-//     analyst String
-//     date_entered DateTime @default(now())
-//     date_modified DateTime @default(now())
-//     expiration_date DateTime @default(now())
-// }
-
+model printers {
+    ip String @id
+    name String
+    location String
+    model String
+}
 
 generator client {
     provider = "prisma-client-js"

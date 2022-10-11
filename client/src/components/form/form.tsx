@@ -17,9 +17,9 @@ const Form = () => {
         storage_condition: '',
         contents: '',
         analyst: '',
-        date_entered: (new Date(Date.now())).toDateString(),
-        expiration_date: (new Date(Date.now())).toDateString(),
-        date_modified: (new Date(Date.now())).toDateString(),
+        date_entered: (new Date(Date.now())).toISOString().split('T')[0],
+        expiration_date: (new Date(Date.now())).toISOString().split('T')[0],
+        date_modified: (new Date(Date.now())).toISOString().split('T')[0],
     });
 
     // Generate a QR Code here
@@ -88,7 +88,7 @@ const Form = () => {
                     type='date'
                     fullWidth 
                     value={sampleData.date_entered} 
-                    defaultValue={(new Date(Date.now())).toISOString()}
+                    // defaultValue={(new Date(Date.now())).toISOString()}
                     onChange={(event) => setSampleData({ ...sampleData, date_entered: event.target.value })}
                 />
 
@@ -100,7 +100,7 @@ const Form = () => {
                     type='date'
                     fullWidth 
                     value={sampleData.expiration_date} 
-                    defaultValue={(new Date(Date.now())).toISOString()}
+                    // defaultValue={(new Date(Date.now())).toISOString()}
                     onChange={(event) => setSampleData({ ...sampleData, expiration_date: event.target.value })}
                 />
 
@@ -112,7 +112,7 @@ const Form = () => {
                     type='date'
                     fullWidth 
                     value={sampleData.date_modified}
-                    defaultValue={(new Date(Date.now())).toISOString()} 
+                    // defaultValue={(new Date(Date.now())).toISOString()} 
                     onChange={(event) => setSampleData({ ...sampleData, date_modified: event.target.value })}
                 />
 
