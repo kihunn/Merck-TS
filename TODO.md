@@ -13,6 +13,7 @@
     - Edit log
     - QR Code scanning
 - [x] Fix default value for textfields that are supposed to have dates
+- [x] MUI styles works sometimes and sometimes they dont -> could be because no theme is declared?
 
 # Label Management
 - Labels are generated once upon request and cached

@@ -1,8 +1,10 @@
+import { SAMPLE } from '../constants'
+
 export default (samples: any = [], action: any) => {
     switch (action.type) {
-        case 'CREATE':
+        case SAMPLE.CREATE:
             return [...samples, action.payload]
-        case 'FETCH_ALL':
+        case SAMPLE.FETCH_ALL:
             return action.payload;
         default:
             return samples;

@@ -5,17 +5,14 @@ import useStyles from './styles'
 import * as api from '../../api/index';
 
 import { useSelector } from 'react-redux';
-// import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
-import { TableContainer, Table, Paper, TableHead, TableRow, TableCell, TableBody, IconButton, InputLabel, Select, MenuItem } from '@mui/material';
+import { TableContainer, Table, Paper, TableHead, TableRow, TableCell, TableBody, IconButton, InputLabel, Select, MenuItem, Button } from '@mui/material';
 import { Edit, Print } from '@mui/icons-material';
 
 const Samples = () => {
     const [labelImage, setLabelImage] = useState('');
-    const samples = useSelector((state: any) => state.samples);
-    const printers = useSelector((state: any) => { 
-        console.log(state)
-        return state.printers
-    });
+    const [printer, setPrinter] = useState('None');
+    const samples: any[] = useSelector((state: any) => state.samples);
+    const printers: any[] = useSelector((state: any) => state.printers);
     const classes = useStyles();
 
     const handleGenerateLabel = async (event: any, sample: any) => {
@@ -23,8 +20,13 @@ const Samples = () => {
         setLabelImage(qr_code_image);
     }
 
-    const handlePrintLabel = async (event: any, printer: any) => {
-        await api.printLabel(labelImage, printer)
+    const handlePrintLabel = async (event: any) => {
+        const printerData = printers.find((p: any) => p.name === printer);
+        await api.printLabel(labelImage, printerData)
+    }
+
+    const handleSelectPrinter = (event: any) => {
+        setPrinter(event.target.value);
     }
 
     return (
@@ -75,13 +77,22 @@ const Samples = () => {
                 <div>
                     <img src={`data:image/png;base64,${labelImage}`} alt="Label" style={{ objectFit: 'cover' }} /> 
                     <InputLabel id="printer-label">Printer</InputLabel>
-                    <Select>
+                    <Select
+                        value={printer}
+                        label='Printer'
+                        onChange={handleSelectPrinter}
+                    >
+                        <MenuItem value='None'>None</MenuItem>
                         {
-
+                            printers.map((printer: any) => 
+                                <MenuItem value={printer.name}>{printer.name}</MenuItem>
+                            )
                         }
                     </Select>
+                    {
+                        printer !== 'None' ? <Button onClick={handlePrintLabel}>Print</Button> : null
+                    }
                 </div>
-                
                 : null
             }
         </Paper>

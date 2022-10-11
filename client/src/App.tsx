@@ -3,12 +3,13 @@ import msdlogo from './images/msdlogo.png';
 import Form from './components/form/form';
 import Samples from './components/samples/samples';
 
-import { getSamples } from './actions/samples';
+import { getSamples } from './redux/actions/samples';
+import { getPrinters } from './redux/actions/printer';
 import { useDispatch } from 'react-redux';
 
 import { Container, AppBar, Typography, Grow, Grid } from '@mui/material';
 import useStyles from './styles'
-import { AnyAction } from 'redux';
+
 
 const App = () => {
     const classes = useStyles();
@@ -17,7 +18,10 @@ const App = () => {
     useEffect(() => {
         // @ts-ignore
         dispatch(getSamples());
+        // @ts-ignore
+        dispatch(getPrinters())
     }, [dispatch])
+
 
     return (
         <Container maxWidth="lg">
@@ -28,13 +32,13 @@ const App = () => {
             <Grow in>
                 <Container>
                     <Grid container justifyContent="space-between" alignItems="stretch" spacing={3}>
-                        <Grid item xs={12} sm={7}>
+                        {/* <Grid item xs={12} sm={7}> */}
                             <Samples />
-                        </Grid>
+                        {/* </Grid>
 
-                        <Grid item xs={12} sm={4}>
+                        <Grid item xs={12} sm={4}> */}
                             <Form />
-                        </Grid>
+                        {/* </Grid> */}
                     </Grid>
                 </Container>
             </Grow>

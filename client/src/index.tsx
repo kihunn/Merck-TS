@@ -5,7 +5,7 @@ import App from './App';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import thunk from 'redux-thunk';
-import reducers from './reducers/index';
+import reducers from './redux/reducers/index';
 
 const store = configureStore({
     reducer: reducers,

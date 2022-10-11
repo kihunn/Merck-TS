@@ -1,6 +1,5 @@
-import brother from 'brother-label-printer'
-import prisma, { Sample, Printer } from '../db';
-import { generateLabel } from './qr';
+const { printPngBuffer } = require('brother-label-printer')
+import prisma, { Printer } from '../db';
 
 export async function getPrinters(): Promise<Printer[]> {
     return await prisma.printers.findMany();
@@ -14,7 +13,7 @@ export async function printLabel(base64label: string, printer: Printer) {
     const printerURL = formatPrinterURL(printer);
     const buffer = Buffer.from(base64label, 'base64')
     try {
-        await brother.printPngBuffer(printerURL, buffer);
+        await printPngBuffer(printerURL, buffer);
         return true;
     } catch (error: any) {
         console.log(error)

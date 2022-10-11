@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { TextField, Button, Typography, Paper } from '@mui/material';
 
 import useStyles from './styles'
-import { createSample } from '../../actions/samples';
+import { createSample } from '../../redux/actions/samples';
 
 import * as api from '../../api/index';
 
@@ -30,10 +30,6 @@ const Form = () => {
 
         // @ts-ignore
         dispatch(createSample({...sampleData, qr_code_key}))
-    }
-
-    const clear = () => {
-
     }
 
     return (
@@ -126,17 +122,6 @@ const Form = () => {
                 >
                     Submit
                 </Button>
-
-                <Button
-                    variant='contained'
-                    color='secondary'
-                    size='small'
-                    onClick={clear}
-                    fullWidth
-                >
-                    Clear
-                </Button>
-
             </form>
         </Paper>
     )
