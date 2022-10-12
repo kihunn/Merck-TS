@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 // import useStyles from './styles'
 
 import * as api from '../../../api/index';
 
-import { useSelector } from 'react-redux';
-import { TableContainer, Table, Paper, TableHead, TableRow, TableCell, TableBody, IconButton, InputLabel, Select, MenuItem, Button, TextField } from '@mui/material';
+import { TableRow, TableCell, IconButton, TextField } from '@mui/material';
 import { Edit, Print, Check, Close } from '@mui/icons-material';
 
 interface SampleCellProps {
@@ -35,6 +34,7 @@ const SampleCell = (props: SampleCellProps) => {
     }
 
     const handleEditSuccess = async (event: any) => {
+        // TODO: Shouldn't be called if the sample had no updates
         await api.updateSample(selectedSample);
         for (let i = 0; i < samples.length; i++) {
             if (samples[i].qr_code_key === selectedSample.qr_code_key) {

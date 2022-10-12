@@ -20,14 +20,14 @@
 - [ ] Make it so you cant create a sample that has the same properties as an existing one
     - if new_qr_code_key == existing_qr_code_key dont create that new sample
 - [ ] Add the ability to scan a qr code using scanner
+- [ ] Possibly add the ability for scientist to have an account, basically just name so that you could sort by analyst. Or find all samples by a scientist. May not need cause you could just search anyway
 
 # Label Management
 - Labels are generated once upon request and cached
 - Labels will be re-generated when edited
 - If we get the same label twice just generate once then return cached base64 string or img obj
-<<<<<<< HEAD
 - ### Big Question
     - If labels are updated should their qr code key be changed? 
     - The qr code key is based off the properties of the sample so if the properties change the qr code key would as well
-=======
->>>>>>> 1ebbd31c61b98ebc2ec8db445cdb830fba30782d
+    - (Currently it doesnt change upon updates)
+

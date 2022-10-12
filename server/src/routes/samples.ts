@@ -29,7 +29,4 @@ router.put('/', updateSample)
 // get /samples/:qr_code_key
 router.get('/:qr_code_key', getSample)
 
-// post /samples/:qr_code_key/print/:printer_ip
-router.post('/:qr_code_key/print/:printer_ip')
-
 export default router

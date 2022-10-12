@@ -6,7 +6,7 @@ import * as api from '../../api/index';
 
 import { useSelector } from 'react-redux';
 import { TableContainer, Table, Paper, TableHead, TableRow, TableCell, TableBody, InputLabel, Select, MenuItem, Button } from '@mui/material';
-import SampleRow from './sample_row/SampleRow';
+import SampleRow from './SampleRow/SampleRow';
 
 const Samples = () => {
     const [labelImage, setLabelImage] = useState('');
