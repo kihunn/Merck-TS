@@ -24,3 +24,6 @@
 - Labels are generated once upon request and cached
 - Labels will be re-generated when edited
 - If we get the same label twice just generate once then return cached base64 string or img obj
+- ### Big Question
+    - If labels are updated should their qr code key be changed? 
+    - The qr code key is based off the properties of the sample so if the properties change the qr code key would as well
