@@ -26,7 +26,6 @@ const Form = () => {
     const handleSubmit = async (event: any) => {
         event.preventDefault()
         let { qr_code_key } = (await api.createQRCodeKey(sampleData)).data;
-        console.log(qr_code_key)
 
         // @ts-ignore
         dispatch(createSample({...sampleData, qr_code_key}))

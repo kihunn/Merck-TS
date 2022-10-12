@@ -33,8 +33,25 @@ async function createSample(req: any, res: any) {
     }
 }
 
+async function updateSample(req: any, res: any) {
+    const newSample = req.body;
+    try {
+        const sample = await prisma.samples.update({
+            where: {
+                qr_code_key: newSample.qr_code_key
+            },
+            data: newSample
+        })
+        res.status(200).json(sample);
+    } catch (error: any) {
+        console.log(error)
+        res.status(500).json({ message: error.message })
+    }
+}
+
 export {
     getSamples,
     getSample,
     createSample,
+    updateSample
 }

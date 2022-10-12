@@ -6,6 +6,9 @@ export const fetchSamples = () => axios.get(samplesURL)
 export const createSample = (newSampleData: any) => {
     return axios.post(samplesURL, newSampleData)
 }
+export const updateSample = (newSapleDate: any) => {
+    return axios.put(samplesURL, newSapleDate)
+}
 
 const qrURL = 'http://localhost:5000/qr'
 

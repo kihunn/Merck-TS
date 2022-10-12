@@ -45,7 +45,6 @@ async function printQRCodeLabel(req: any, res: any) {
 
 async function getPrinters(req: any, res: any) {
     const printers = await prisma.printers.findMany()
-    console.log(printers)
     res.status(200).json(printers)
 }
 

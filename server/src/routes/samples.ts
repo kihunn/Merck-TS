@@ -2,7 +2,8 @@ import express from 'express'
 import {
     getSamples,
     getSample,
-    createSample
+    createSample,
+    updateSample
 } from '../controllers/samples'
 
 const router = express.Router()
@@ -19,6 +20,11 @@ router.get('/', getSamples)
  * 
  */
 router.post('/', createSample)
+
+/**
+ * Updates a given sample
+ */
+router.put('/', updateSample)
 
 // get /samples/:qr_code_key
 router.get('/:qr_code_key', getSample)
