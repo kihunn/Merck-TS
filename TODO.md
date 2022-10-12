@@ -7,11 +7,11 @@
 - [x] Button to edit a sample in table format
     - [ ] Have a log somewhere that shows who edited what and when
 - [ ] Clean up styles, remove unused styles and make website look better
-- [ ] Create different pages for (below) using react-router & react-router-dom. On top of this need to set up a router to redirect qr codes when scanned:
-    - Sample viewing
-    - Sample creating
-    - Edit log
-    - QR Code scanning
+- [x] Create different pages for (below) using react-router & react-router-dom. On top of this need to set up a router to redirect qr codes when scanned:
+    - [x] Sample viewing
+    - [x] Sample creating
+    - [ ] Edit log
+    - [ ] QR Code scanning
 - [x] Fix default value for textfields that are supposed to have dates
 - [ ] MUI styles works sometimes and sometimes they dont -> could be because no theme is declared?
 - [x] Plan for edit button functionality
