@@ -21,6 +21,7 @@
     - if new_qr_code_key == existing_qr_code_key dont create that new sample
 - [ ] Add the ability to scan a qr code using scanner
 - [ ] Possibly add the ability for scientist to have an account, basically just name so that you could sort by analyst. Or find all samples by a scientist. May not need cause you could just search anyway
+- [ ] When creating a sample, cache the the form contents so that if the page is changed and then we come back, the form hasnt gone away
 
 # Label Management
 - Labels are generated once upon request and cached
