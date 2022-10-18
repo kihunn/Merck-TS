@@ -1,5 +1,6 @@
 # Server
 - [x] Implement printing using node-brother-lable-printer library
+    - [ ] Not sure if it's the libraries fault but printer keeps giving error "Wrong roll type! Check the print data and try again". Hence I've tried setup printing through the IPP protocol, which is what the library uses under the hood, but with some modifications and still get the same error. Not sure if the data being passed is in the wrong format but Ive spent many hours on it to no avail
 - [x] Generate qr code keys using a seeded or consistent hash algorithm
 - [x] Generate qr codes and be able to send them to front-end
 
