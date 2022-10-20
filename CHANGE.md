@@ -1,0 +1,4 @@
+- git add .
+    - git add {files}
+- git commit -m "Message"
+- git push
