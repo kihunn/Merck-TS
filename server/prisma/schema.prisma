@@ -5,10 +5,21 @@ datasource db {
 
 model samples {
     qr_code_key String @id
+    sample_id String
     experiment_id String
     storage_condition String
     contents String
     analyst String
+    date_entered String
+    date_modified String
+    expiration_date String
+}
+
+model Psamples {
+    qr_code_key String @id
+    sample_name String
+    MK String
+    ELNnotebooknumber String
     date_entered String
     date_modified String
     expiration_date String

@@ -16,7 +16,8 @@ import reducers from './redux/reducers/index';
 import SamplesPage from './pages/SamplesPage/SamplesPage';
 import RootPage from './pages/RootPage/RootPage';
 import CreateSamplePage from './pages/CreateSamplePage/CreateSamplePage';
-
+import PCreateSamplePage from './pages/PharmaTeamPage/PCreateSamplePage/PCreateSamplePage';
+import PSamplesPage from './pages/PharmaTeamPage/PSamplePage/PSamplesPage';
 
 const store = configureStore({
     reducer: reducers,
@@ -43,6 +44,14 @@ const router = createBrowserRouter([
     {
         path: "/samples/create",
         element: <CreateSamplePage />,
+    },
+    {
+        path: "/Psamples",
+        element: <PSamplesPage />,
+    },
+    {
+        path: "/Psamples/Pcreate",
+        element: <PCreateSamplePage />,
     }
 ]);
 

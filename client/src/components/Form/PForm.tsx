@@ -13,11 +13,9 @@ const Form = () => {
     const dispatch = useDispatch();
 
     const [sampleData, setSampleData] = useState({
-        sample_id: '',
-        experiment_id: '',
-        storage_condition: '',
-        contents: '',
-        analyst: '',
+        sample_name: '',
+        MK: '',
+        ELNnotebooknumber: '',
         date_entered: (new Date(Date.now())).toISOString().split('T')[0],
         expiration_date: (new Date(Date.now())).toISOString().split('T')[0],
         date_modified: (new Date(Date.now())).toISOString().split('T')[0],
@@ -38,51 +36,31 @@ const Form = () => {
                 <Typography  variant='h6'>Sample Information</Typography>
                 <TextField 
                     margin='normal'
-                    name="sampleID" 
+                    name="samplename"
                     variant="outlined" 
-                    label="Sample ID" 
+                    label="Sample Name" 
                     fullWidth 
-                    value={sampleData.sample_id} 
-                    onChange={(event) => setSampleData({ ...sampleData, sample_id: event.target.value })}
+                    value={sampleData.sample_name} 
+                    onChange={(event) => setSampleData({ ...sampleData, sample_name: event.target.value })}
                 />
                 <TextField 
                     margin='normal'
-                    name="experimentID" 
+                    name="MK" 
                     variant="outlined" 
-                    label="Experiment ID" 
+                    label="MK" 
                     fullWidth 
-                    value={sampleData.experiment_id} 
-                    onChange={(event) => setSampleData({ ...sampleData, experiment_id: event.target.value })}
-                />
-
-                <TextField 
-                    margin='normal'
-                    name="storageCondition" 
-                    variant="outlined" 
-                    label="Storage Condition" 
-                    fullWidth 
-                    value={sampleData.storage_condition} 
-                    onChange={(event) => setSampleData({ ...sampleData, storage_condition: event.target.value })}
+                    value={sampleData.MK} 
+                    onChange={(event) => setSampleData({ ...sampleData, MK: event.target.value })}
                 />
 
                 <TextField 
                     margin='normal'
-                    name="contents" 
+                    name="ELN notebooknumber" 
                     variant="outlined" 
-                    label="Contents" 
+                    label="ELN notebooknumber" 
                     fullWidth 
-                    value={sampleData.contents} 
-                    onChange={(event) => setSampleData({ ...sampleData, contents: event.target.value })}
-                />
-
-                <TextField 
-                    margin='normal'
-                    name="analyst" 
-                    variant="outlined" 
-                    label="Analyst" 
-                    fullWidth 
-                    value={sampleData.analyst} 
-                    onChange={(event) => setSampleData({ ...sampleData, analyst: event.target.value })}
+                    value={sampleData.ELNnotebooknumber} 
+                    onChange={(event) => setSampleData({ ...sampleData, ELNnotebooknumber: event.target.value })}
                 />
 
                 <TextField 
