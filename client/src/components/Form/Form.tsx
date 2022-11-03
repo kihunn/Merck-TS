@@ -37,7 +37,7 @@ const Form = () => {
                 <Typography  variant='h6'>Sample Information</Typography>
                 <TextField 
                     margin='normal'
-                    name="experimentID" 
+                    name="experimentID"
                     variant="outlined" 
                     label="Experiment ID" 
                     fullWidth 

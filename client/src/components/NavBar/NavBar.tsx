@@ -23,12 +23,12 @@ const NavBar = (props: any) => {
                     <Link to="/" style={linkStyle}>Home</Link>
                 </Button>
 
-                
                 <Button
                     variant='contained'
                 >
                     <Link to="/samples" style={linkStyle}>View Samples</Link>
                 </Button>
+                
                 <Button
                     variant='contained'
                 >
