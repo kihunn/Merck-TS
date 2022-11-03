@@ -28,3 +28,7 @@
     - May need to add the --force tag to the end
 - npm start
 
+### Zihao Contributions
+- Added pages for the Pharmaceutical team to add and view samples
+- Added sample ID as a major vriable to trace samples instead of experimental ID
+- Corrected the typos in the setup steps

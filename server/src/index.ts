@@ -33,6 +33,7 @@ import path from 'path'
 async function testQRGeneration() {
     const sample: Sample = {
         qr_code_key: 'b10ee1b4',
+        sample_id: '2',
         experiment_id: '1',
         contents: 'NaCl',
         analyst: 'Thomas Hughes',
