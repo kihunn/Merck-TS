@@ -27,14 +27,14 @@ const NavBar = (props: any) => {
                     variant='contained'
                 >
                     <Link to="/Psamples/Pcreate" style={linkStyle}>Create Sample - Pharmaceutical Team</Link>
-                    </Button>       
+                </Button>       
                     
                 <Button
                     variant='contained'
                 >
                     <Link to="/Psamples" style={linkStyle}>View Samples - Pharmaceutical Team</Link>
-                    </Button>
-                
+                </Button>
+
                 <Button
                     variant='contained'
                 >
@@ -45,7 +45,7 @@ const NavBar = (props: any) => {
                     variant='contained'
                 >
                     <Link to="/samples/create" style={linkStyle}>Create Sample - AR&D Team</Link>
-                    </Button>    
+                </Button>    
 
 
             </AppBar>

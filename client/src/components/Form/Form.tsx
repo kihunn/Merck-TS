@@ -45,6 +45,7 @@ const Form = () => {
                     value={sampleData.sample_id} 
                     onChange={(event) => setSampleData({ ...sampleData, sample_id: event.target.value })}
                 />
+                
                 <TextField 
                     margin='normal'
                     name="experimentID" 
