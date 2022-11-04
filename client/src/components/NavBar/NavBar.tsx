@@ -26,14 +26,28 @@ const NavBar = (props: any) => {
                 <Button
                     variant='contained'
                 >
-                    <Link to="/samples" style={linkStyle}>View Samples</Link>
-                </Button>
-                
+                    <Link to="/Psamples/Pcreate" style={linkStyle}>Create Sample - Pharmaceutical Team</Link>
+                </Button>       
+                    
                 <Button
                     variant='contained'
                 >
-                    <Link to="/samples/create" style={linkStyle}>Create Sample</Link>
-                    </Button>                 
+                    <Link to="/Psamples" style={linkStyle}>View Samples - Pharmaceutical Team</Link>
+                </Button>
+
+                <Button
+                    variant='contained'
+                >
+                    <Link to="/samples" style={linkStyle}>View Samples - AR&D Team</Link>
+                </Button>
+
+                <Button
+                    variant='contained'
+                >
+                    <Link to="/samples/create" style={linkStyle}>Create Sample - AR&D Team</Link>
+                </Button>    
+
+
             </AppBar>
             <Grow in>
                 <Container>

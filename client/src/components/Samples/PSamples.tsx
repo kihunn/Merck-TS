@@ -6,7 +6,7 @@ import * as api from '../../api/index';
 
 import { useSelector } from 'react-redux';
 import { TableContainer, Table, Paper, TableHead, TableRow, TableCell, TableBody, InputLabel, Select, MenuItem, Button } from '@mui/material';
-import SampleRow from './SampleRow/SampleRow';
+import SampleRow from './SampleRow/PSampleRow';
 
 const Samples = () => {
     const [labelImage, setLabelImage] = useState('');
@@ -39,11 +39,9 @@ const Samples = () => {
                 <TableHead>
                     <TableRow>
                         <TableCell>QR Code Key</TableCell>
-                        <TableCell>Sample ID</TableCell>
-                        <TableCell>Experiment ID</TableCell>
-                        <TableCell>Storage Condition</TableCell>
-                        <TableCell>Contents</TableCell>
-                        <TableCell>Analyst</TableCell>
+                        <TableCell>Sample Name</TableCell>
+                        <TableCell>MK</TableCell>
+                        <TableCell>ELN notebook number</TableCell>
                         <TableCell>Date Created</TableCell>
                         <TableCell>Date Appended</TableCell>
                         <TableCell>Expiration Date</TableCell>
