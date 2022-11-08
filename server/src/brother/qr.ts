@@ -144,6 +144,7 @@ export async function generateLabel(sample: Sample, options: LabelOptions = Larg
     const storageText = `Storage: ${sample.storage_condition}`
     whiteLabel.print(FONTS[options.fonts.smallFont], curTextPos.x, curTextPos.y, storageText, maxTextDim.width)
 
+    // await whiteLabel.writeAsync(path.join(__dirname, './assets/label.png'))
     return whiteLabel
 }
 

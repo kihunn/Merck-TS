@@ -12,6 +12,8 @@ model samples {
     date_entered String
     date_modified String
     expiration_date String
+    audit_id String @default(uuid())
+    audit_number Int
 }
 
 model printers {

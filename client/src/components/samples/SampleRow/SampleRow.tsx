@@ -4,16 +4,32 @@ import { useState } from 'react';
 
 import * as api from '../../../api/index';
 
-import { TableRow, TableCell, IconButton, TextField } from '@mui/material';
-import { Edit, Print, Check, Close } from '@mui/icons-material';
+import { 
+    TableRow, 
+    TableCell, 
+    IconButton, 
+    TextField 
+} from '@mui/material';
+
+import { 
+    Edit, 
+    Print, 
+    Check, 
+    Close,
+    History
+} from '@mui/icons-material';
+import { Link } from 'react-router-dom';
+import { Sample } from '../../../api/types';
 
 interface SampleCellProps {
-    sample: any,
-    samples: any[],
+    sample: Sample,
+    samples: Sample[],
     onPrint: (event: any, sample: any) => void
+    onEdit: (event: any, selectedSample: any) => void,
+    isAudit: boolean
 }
 const SampleCell = (props: SampleCellProps) => {
-    const sample = props.sample;
+    var sample = props.sample;
 
      const initialSampleState = {
         qr_code_key: '',
@@ -26,8 +42,8 @@ const SampleCell = (props: SampleCellProps) => {
         date_modified: (new Date(Date.now())).toISOString().split('T')[0],
     }
     
-    const [selectedSample, setSelectedSample] = useState(Object.create(initialSampleState));
-    const samples: any[] = props.samples
+    const [selectedSample, setSelectedSample]: [Sample, Function] = useState(Object.create(initialSampleState));
+    const samples: Sample[] = props.samples
 
     const handleEditRequest = (event: any, sample: any) => {
         setSelectedSample(sample);
@@ -36,11 +52,8 @@ const SampleCell = (props: SampleCellProps) => {
     const handleEditSuccess = async (event: any) => {
         // TODO: Shouldn't be called if the sample had no updates
         await api.updateSample(selectedSample);
-        for (let i = 0; i < samples.length; i++) {
-            if (samples[i].qr_code_key === selectedSample.qr_code_key) {
-                samples[i] = selectedSample;
-            }
-        }
+        props.onEdit(event, selectedSample)
+        sample = selectedSample;
         setSelectedSample(Object.create(initialSampleState))
     }
 
@@ -59,8 +72,27 @@ const SampleCell = (props: SampleCellProps) => {
                 <TableCell align="right">{sample.date_entered}</TableCell>
                 <TableCell align="right">{sample.date_modified}</TableCell>
                 <TableCell align="right">{sample.expiration_date}</TableCell>
-                <TableCell> <IconButton onClick={(event) => handleEditRequest(event, sample)}> <Edit /> </IconButton> </TableCell>
-                <TableCell> <IconButton onClick={(event) => props.onPrint(event, sample)}> <Print /> </IconButton> </TableCell>
+                {!props.isAudit ? <><TableCell> 
+                    <IconButton onClick={(event) => handleEditRequest(event, sample)}> 
+                        <Edit /> 
+                    </IconButton> 
+                </TableCell>
+                <TableCell> 
+                    <IconButton onClick={(event) => props.onPrint(event, sample)}> 
+                        <Print /> 
+                    </IconButton> 
+                </TableCell>
+                <TableCell>  
+                    <IconButton>
+                        {/* </IconButton><</TableCell>Link to="/samples/audit" style={{textDecoration: 'none', color: 'gray'}} ><History /></Link> */}
+                        <Link
+                        to={`/samples/audit/${sample.audit_id}`}
+                        style={{textDecoration: 'none', color: 'gray'}} 
+                        >
+                            <History />
+                        </Link>
+                    </IconButton>
+                </TableCell></> : <></>}
             </TableRow>
         ) : (
             <TableRow key={sample.qr_code_key} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>

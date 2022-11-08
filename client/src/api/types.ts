@@ -1,6 +1,3 @@
-import { PrismaClient } from '@prisma/client'
-const prisma: PrismaClient = new PrismaClient()
-
 export interface Sample {
     qr_code_key: string,
     experiment_id: string,
@@ -14,13 +11,9 @@ export interface Sample {
     audit_number: number
 }
 
-
 export interface Printer {
     ip: string,
     name: string,
     location: string,
     model: string
 }
-
-export default prisma
-

@@ -8,7 +8,6 @@ import sampleRoutes from './routes/samples'
 import qrRoutes from './routes/qr'
 
 (async function() {
-    // testQRGeneration()
     const app: express.Express = express()
     const port = process.env.LOCAL_DEV_PORT ?? 5000
 
@@ -25,22 +24,3 @@ import qrRoutes from './routes/qr'
 
     prisma.$disconnect()
 })();
-
-import { generateHashKey, generateLabel } from './brother/qr';
-import Jimp from 'jimp'
-import path from 'path'
-
-async function testQRGeneration() {
-    const sample: Sample = {
-        qr_code_key: 'b10ee1b4',
-        experiment_id: '1',
-        contents: 'NaCl',
-        analyst: 'Thomas Hughes',
-        storage_condition: 'Freezer',
-        date_entered: '2022-10-08',
-        date_modified: '2022-10-08',
-        expiration_date: '2022-10-08'
-    }
-
-    const img = await generateLabel(sample)
-}

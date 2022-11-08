@@ -16,6 +16,7 @@ import reducers from './redux/reducers/index';
 import SamplesPage from './pages/SamplesPage/SamplesPage';
 import RootPage from './pages/RootPage/RootPage';
 import CreateSamplePage from './pages/CreateSamplePage/CreateSamplePage';
+import AuditTable from './components/AuditTable/AuditTable';
 
 
 const store = configureStore({
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
     {
         path: "/samples/create",
         element: <CreateSamplePage />,
+    },
+    {
+        path: "/samples/audit/:id",
+        element: <AuditTable />
     }
 ]);
 

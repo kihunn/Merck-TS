@@ -1,4 +1,6 @@
-import prisma from "../db";
+import prisma, { Sample } from "../db";
+import KSUID from 'ksuid';
+import { generateHashKey } from "../brother/qr";
 
 async function getSamples(req: any, res: any) {
     const samples = await prisma.samples.findMany();
@@ -23,9 +25,12 @@ async function createSample(req: any, res: any) {
     const sample = req.body
     try {
         console.log(`Creating sample ${JSON.stringify(sample, null, 4)}`)
+        const ksuid = await KSUID.random();
+
         const newSample = await prisma.samples.create({
-            data: sample
+            data: { ...sample, audit_number: ksuid.timestamp }
         })
+
         res.status(201).json(newSample)
     } catch (error: any) {
         console.log(error)
@@ -36,11 +41,21 @@ async function createSample(req: any, res: any) {
 async function updateSample(req: any, res: any) {
     const newSample = req.body;
     try {
-        const sample = await prisma.samples.update({
-            where: {
-                qr_code_key: newSample.qr_code_key
-            },
-            data: newSample
+        // @ts-ignore
+        const omitQR: Omit<Sample, 'qr_code_key'> = {};
+
+        for (const key in newSample) {
+            if (key != 'qr_code_key') {
+                // @ts-ignore
+                omitQR[key] = newSample[key];
+            }
+        }
+
+        const ksuid = await KSUID.random();
+        const newQR = generateHashKey(omitQR);
+        newSample.qr_code_key = newQR;
+        const sample = await prisma.samples.create({
+            data: { ...newSample, audit_id: newSample.audit_id, audit_number: ksuid.timestamp }
         })
         res.status(200).json(sample);
     } catch (error: any) {
