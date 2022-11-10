@@ -1,4 +1,3 @@
-import { Paper } from "@mui/material";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom"
 import { Sample } from "../../api/types";

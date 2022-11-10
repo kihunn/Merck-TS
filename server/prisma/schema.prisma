@@ -16,6 +16,18 @@ model samples {
     audit_number Int
 }
 
+model psamples {
+    qr_code_key String @id
+    sample_name String
+    MK String
+    ELNnotebooknumber String
+    date_entered String
+    date_modified String
+    expiration_date String
+    audit_id String @default(uuid())
+    audit_number Int
+}
+
 model printers {
     ip String @id
     name String

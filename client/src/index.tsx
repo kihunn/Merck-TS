@@ -17,6 +17,8 @@ import SamplesPage from './pages/SamplesPage/SamplesPage';
 import RootPage from './pages/RootPage/RootPage';
 import CreateSamplePage from './pages/CreateSamplePage/CreateSamplePage';
 import AuditTable from './components/AuditTable/AuditTable';
+import PSamplesPage from './pages/PharmaTeamPage/PSamplePage/PSamplesPage';
+import PCreateSamplePage from './pages/PharmaTeamPage/PCreateSamplePage/PCreateSamplePage';
 
 
 const store = configureStore({
@@ -48,6 +50,14 @@ const router = createBrowserRouter([
     {
         path: "/samples/audit/:id",
         element: <AuditTable />
+    },
+    {
+        path: "/Psamples",
+        element: <PSamplesPage />,
+    },
+    {
+        path: "/Psamples/Pcreate",
+        element: <PCreateSamplePage />,
     }
 ]);
 

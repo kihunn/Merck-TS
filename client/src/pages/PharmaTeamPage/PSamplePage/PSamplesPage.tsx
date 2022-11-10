@@ -1,17 +1,18 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
-import { getSamples } from '../../redux/actions/samples';
-import { getPrinters } from '../../redux/actions/printer';
+import { getSamples } from '../../../redux/actions/samples';
+import { getPrinters } from '../../../redux/actions/printer';
 
-import NavBar from "../../components/NavBar/NavBar"
+import NavBar from "../../../components/NavBar/NavBar"
 
 // import useStyles from './styles'
 import { Container, Grow, Grid } from '@mui/material';
-import Samples from "../../components/Samples/Samples";
+import PSamples from "../../../components/Samples/PSample";
 
-const SamplesPage = () => {
+const PSamplesPage = () => {
 
+    // const classes = useStyles();
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -24,9 +25,9 @@ const SamplesPage = () => {
     return (
         <>
             <NavBar/>
-            <Samples />
+            <PSamples />
         </>
     )
 }
 
-export default SamplesPage
+export default PSamplesPage
