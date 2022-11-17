@@ -1,0 +1,40 @@
+datasource db {
+    provider = "postgresql"
+    url = env("POSTGRES_DEV_URI")
+}
+
+model samples {
+    qr_code_key String @id
+    experiment_id String
+    storage_condition String
+    contents String
+    analyst String
+    date_entered String
+    date_modified String
+    expiration_date String
+    audit_id String @default(uuid())
+    audit_number Int
+}
+
+model psamples {
+    qr_code_key String @id
+    sample_name String
+    mk String
+    eln_notebook_number String
+    date_entered String
+    date_modified String
+    expiration_date String
+    audit_id String @default(uuid())
+    audit_number Int
+}
+
+model printers {
+    ip String @id
+    name String
+    location String
+    model String
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
