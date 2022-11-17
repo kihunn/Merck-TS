@@ -65,13 +65,13 @@ const SampleCell = (props: SampleCellProps) => {
         sample.qr_code_key != selectedSample.qr_code_key ? (
             <TableRow style={{background: ((new Date(sample.expiration_date) < new Date(Date.now())) && !props.isAudit) ? 'rgba(255,68,68,0.8)' : 'white' }} key={sample.qr_code_key} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell component="th" scope="row">{sample.qr_code_key}</TableCell>
-                <TableCell align="right">{sample.experiment_id}</TableCell>
-                <TableCell align="right">{sample.storage_condition}</TableCell>
-                <TableCell align="right">{sample.contents}</TableCell>
-                <TableCell align="right">{sample.analyst}</TableCell>
-                <TableCell align="right">{sample.date_entered}</TableCell>
-                <TableCell align="right">{sample.date_modified}</TableCell>
-                <TableCell align="right">{sample.expiration_date}</TableCell>
+                <TableCell align="left">{sample.experiment_id}</TableCell>
+                <TableCell align="left">{sample.storage_condition}</TableCell>
+                <TableCell align="left">{sample.contents}</TableCell>
+                <TableCell align="left">{sample.analyst}</TableCell>
+                <TableCell align="left">{sample.date_entered}</TableCell>
+                <TableCell align="left">{sample.date_modified}</TableCell>
+                <TableCell align="left">{sample.expiration_date}</TableCell>
                 {!props.isAudit ? <><TableCell> 
                     <IconButton onClick={(event) => handleEditRequest(event, sample)}> 
                         <Edit /> 

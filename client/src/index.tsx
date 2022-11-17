@@ -22,6 +22,9 @@ import PCreateSamplePage from './pages/PharmaTeamPage/PCreateSamplePage/PCreateS
 
 import { Team } from './components/AuditTable/AuditTable';
 
+import { ThemeProvider } from '@mui/material/styles';
+import { theme } from './styles';
+
 const store = configureStore({
     reducer: reducers,
     middleware: [thunk],
@@ -61,7 +64,9 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root') as (Element | DocumentFragment)).render(
     <React.StrictMode>
         <Provider store={store}>
-            <RouterProvider router={router} />
+            <ThemeProvider theme={theme}>
+                <RouterProvider router={router} />
+            </ThemeProvider>
         </Provider>
     </React.StrictMode>
 )

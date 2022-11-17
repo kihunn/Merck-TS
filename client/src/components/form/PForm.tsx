@@ -55,9 +55,9 @@ const Form = () => {
 
                 <TextField 
                     margin='normal'
-                    name="ELN notebooknumber" 
+                    name="elnNotebookNumber" 
                     variant="outlined" 
-                    label="ELN notebooknumber" 
+                    label="ELN Notebook Number" 
                     fullWidth 
                     value={sampleData.eln_notebook_number} 
                     onChange={(event) => setSampleData({ ...sampleData, eln_notebook_number: event.target.value })}

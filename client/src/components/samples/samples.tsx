@@ -91,14 +91,14 @@ const Samples = (props: SamplesTableProps) => {
             <Table>
                 <TableHead>
                     <TableRow>
-                        <TableCell>QR Code Key</TableCell>
-                        <TableCell>Experiment ID</TableCell>
-                        <TableCell>Storage Condition</TableCell>
-                        <TableCell>Contents</TableCell>
-                        <TableCell>Analyst</TableCell>
-                        <TableCell>Date Created</TableCell>
-                        <TableCell>Date Modified</TableCell>
-                        <TableCell>Expiration Date</TableCell>
+                        <TableCell align='left'>QR Code Key</TableCell>
+                        <TableCell align='left'>Experiment ID</TableCell>
+                        <TableCell align='left'>Storage Condition</TableCell>
+                        <TableCell align='left'>Contents</TableCell>
+                        <TableCell align='left'>Analyst</TableCell>
+                        <TableCell align='left'>Date Created</TableCell>
+                        <TableCell align='left'>Date Modified</TableCell>
+                        <TableCell align='left'>Expiration Date</TableCell>
                         {!isAudit ? <>
                         <TableCell>Edit</TableCell>
                         <TableCell>Print</TableCell>
