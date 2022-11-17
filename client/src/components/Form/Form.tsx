@@ -33,7 +33,7 @@ const Form = () => {
     }
 
     return (
-        <Paper className={classes.paper}>
+        <Paper className={classes.paper} style={{background: '#FFFFFF'}}>
             <form autoComplete='off' noValidate className={classes.form} onSubmit={handleSubmit}>
                 <Typography  variant='h6'>Sample Information</Typography>
                 <TextField 
