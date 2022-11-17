@@ -1,4 +1,4 @@
-import { Sample } from "../db";
+import { PSample, Sample } from "../db";
 import { createHash } from "crypto";
 import QRCode from 'qrcode';
 import Jimp from 'jimp'
@@ -6,7 +6,7 @@ import { Font } from "@jimp/plugin-print";
 
 import path from 'path'
 
-export function generateHashKey(sample: Omit<Sample, 'qr_code_key'>) {
+export function generateHashKey(sample: Omit<Sample, 'qr_code_key'> | Omit<PSample, 'qr_code_key'>) {
     return ((createHash('sha256').update(JSON.stringify(sample)).digest('hex')).substring(0, 8));
 }
 

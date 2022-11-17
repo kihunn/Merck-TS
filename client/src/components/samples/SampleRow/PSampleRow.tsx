@@ -2,32 +2,35 @@ import { useState } from 'react';
 
 // import useStyles from './styles'
 
+import { Link } from 'react-router-dom';
+
 import * as api from '../../../api/index';
 
 import { TableRow, TableCell, IconButton, TextField } from '@mui/material';
-import { Edit, Print, Check, Close } from '@mui/icons-material';
+import { Edit, Print, Check, Close, History } from '@mui/icons-material';
+import { PSample } from '../../../api/types';
 
-interface SampleCellProps {
-    sample: any,
-    samples: any[],
-    onPrint: (event: any, sample: any) => void
+interface PSampleCellProps {
+    sample: PSample,
+    onPrint: (event: any, sample: any) => void,
+    onEdit: (event: any, sample: any) => void,
+    isAudit: boolean
 }
 
-const SampleCell = (props: SampleCellProps) => {
-    const sample = props.sample;
+const PSampleCell = (props: PSampleCellProps) => {
+    const sample: PSample = props.sample;
 
      const initialSampleState = {
         qr_code_key: '',
         sample_name: '',
-        MK: '',
-        ELNnotebooknumber: '',
+        mk: '',
+        eln_notebook_number: '',
         date_entered: (new Date(Date.now())).toISOString().split('T')[0],
         expiration_date: (new Date(Date.now())).toISOString().split('T')[0],
         date_modified: (new Date(Date.now())).toISOString().split('T')[0],
     }
     
-    const [selectedSample, setSelectedSample] = useState(Object.create(initialSampleState));
-    const samples: any[] = props.samples
+    const [selectedSample, setSelectedSample]: [PSample, Function] = useState(Object.create(initialSampleState));
 
     const handleEditRequest = (event: any, sample: any) => {
         setSelectedSample(sample);
@@ -35,12 +38,8 @@ const SampleCell = (props: SampleCellProps) => {
 
     const handleEditSuccess = async (event: any) => {
         // TODO: Shouldn't be called if the sample had no updates
-        await api.updateSample(selectedSample);
-        for (let i = 0; i < samples.length; i++) {
-            if (samples[i].qr_code_key === selectedSample.qr_code_key) {
-                samples[i] = selectedSample;
-            }
-        }
+        await api.updatePSample(selectedSample);
+        props.onEdit(event, selectedSample);
         setSelectedSample(Object.create(initialSampleState))
     }
 
@@ -53,13 +52,31 @@ const SampleCell = (props: SampleCellProps) => {
             <TableRow key={sample.qr_code_key} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell component="th" scope="row">{sample.qr_code_key}</TableCell>
                 <TableCell align="right">{sample.sample_name}</TableCell>
-                <TableCell align="right">{sample.MK}</TableCell>
-                <TableCell align="right">{sample.ELNnotebooknumber}</TableCell>
+                <TableCell align="right">{sample.mk}</TableCell>
+                <TableCell align="right">{sample.eln_notebook_number}</TableCell>
                 <TableCell align="right">{sample.date_entered}</TableCell>
                 <TableCell align="right">{sample.date_modified}</TableCell>
                 <TableCell align="right">{sample.expiration_date}</TableCell>
-                <TableCell> <IconButton onClick={(event) => handleEditRequest(event, sample)}> <Edit /> </IconButton> </TableCell>
-                <TableCell> <IconButton onClick={(event) => props.onPrint(event, sample)}> <Print /> </IconButton> </TableCell>
+                {!props.isAudit ? <><TableCell> 
+                    <IconButton onClick={(event) => handleEditRequest(event, sample)}> 
+                        <Edit /> 
+                    </IconButton> 
+                </TableCell>
+                <TableCell> 
+                    <IconButton onClick={(event) => props.onPrint(event, sample)}> 
+                        <Print /> 
+                    </IconButton> 
+                </TableCell>
+                <TableCell>  
+                    <IconButton>
+                        <Link
+                        to={`/psamples/audit/${sample.audit_id}`}
+                        style={{textDecoration: 'none', color: 'gray'}} 
+                        >
+                            <History />
+                        </Link>
+                    </IconButton>
+                </TableCell></> : <></>}
             </TableRow>
         ) : (
             <TableRow key={sample.qr_code_key} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
@@ -67,7 +84,7 @@ const SampleCell = (props: SampleCellProps) => {
                 <TableCell align="right">
                     <TextField
                         margin='normal'
-                        name="samplename" 
+                        name="sampleName" 
                         variant="outlined" 
                         label="Sample Name" 
                         value={selectedSample.sample_name}
@@ -77,21 +94,21 @@ const SampleCell = (props: SampleCellProps) => {
                 <TableCell align="right">
                     <TextField
                         margin='normal'
-                        name="MK" 
+                        name="mk" 
                         variant="outlined" 
                         label="MK" 
-                        value={selectedSample.MK}
-                        onChange={(event) => setSelectedSample({...selectedSample, MK: event.target.value})}
+                        value={selectedSample.mk}
+                        onChange={(event) => setSelectedSample({...selectedSample, mk: event.target.value})}
                     />
                 </TableCell>
                 <TableCell align="right">
                     <TextField
                         margin='normal'
-                        name="ELN notebooknumber" 
+                        name="elnNotebookNunber" 
                         variant="outlined" 
-                        label="ELN notebooknumber"  
-                        value={selectedSample.ELNnotebooknumber}
-                        onChange={(event) => setSelectedSample({...selectedSample, ELNnotebooknumber: event.target.value})}
+                        label="ELN Notebook Number"  
+                        value={selectedSample.eln_notebook_number}
+                        onChange={(event) => setSelectedSample({...selectedSample, eln_notebook_number: event.target.value})}
                     />
                 </TableCell>
                 <TableCell align="right">
@@ -135,4 +152,4 @@ const SampleCell = (props: SampleCellProps) => {
 
 }
 
-export default SampleCell
+export default PSampleCell

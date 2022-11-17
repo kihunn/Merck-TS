@@ -10,6 +10,16 @@ export const updateSample = (newSapleDate: any) => {
     return axios.put(samplesURL, newSapleDate)
 }
 
+const psamplesURL = 'http://localhost:5000/psamples'
+
+export const fetchPSamples = () => axios.get(psamplesURL)
+export const createPSample = (newSampleData: any) => {
+    return axios.post(psamplesURL, newSampleData)
+}
+export const updatePSample = (newSapleDate: any) => {
+    return axios.put(psamplesURL, newSapleDate)
+}
+
 const qrURL = 'http://localhost:5000/qr'
 
 export const createQRCodeKey = (sample: any) => {

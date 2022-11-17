@@ -5,6 +5,7 @@ import cors from 'cors'
 import prisma, { Sample } from './db'
 
 import sampleRoutes from './routes/samples'
+import psampleRoutes from './routes/psamples'
 import qrRoutes from './routes/qr'
 
 (async function() {
@@ -16,6 +17,7 @@ import qrRoutes from './routes/qr'
     app.use(cors());
 
     app.use('/samples', sampleRoutes)
+    app.use('/psamples', psampleRoutes)
     app.use('/qr', qrRoutes);
 
     const server = app.listen(port, () => {

@@ -20,6 +20,7 @@ import AuditTable from './components/AuditTable/AuditTable';
 import PSamplesPage from './pages/PharmaTeamPage/PSamplePage/PSamplesPage';
 import PCreateSamplePage from './pages/PharmaTeamPage/PCreateSamplePage/PCreateSamplePage';
 
+import { Team } from './components/AuditTable/AuditTable';
 
 const store = configureStore({
     reducer: reducers,
@@ -34,30 +35,26 @@ const router = createBrowserRouter([
     {
         path: "/samples",
         element: <SamplesPage />,
-        // Buggin
-        // children: [
-        //     {
-        //         path: "create",
-        //         element: <CreateSamplePage />,
-        //     }
-        // ]
     },
-    // Ideally I would like this route to be a child of /samples but there is some error with it
     {
         path: "/samples/create",
         element: <CreateSamplePage />,
     },
     {
         path: "/samples/audit/:id",
-        element: <AuditTable />
+        element: <AuditTable team={Team.ARD} />
     },
     {
-        path: "/Psamples",
+        path: "/psamples",
         element: <PSamplesPage />,
     },
     {
-        path: "/Psamples/Pcreate",
+        path: "/psamples/create",
         element: <PCreateSamplePage />,
+    },
+    {
+        path: "/psamples/audit/:id",
+        element: <AuditTable team={Team.PSCS} />
     }
 ]);
 

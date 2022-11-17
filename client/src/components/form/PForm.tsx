@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { TextField, Button, Typography, Paper } from '@mui/material';
 
 import useStyles from './styles'
-import { createSample } from '../../redux/actions/samples';
+import { createPSample } from '../../redux/actions/psamples';
 
 import * as api from '../../api/index';
 
@@ -14,8 +14,8 @@ const Form = () => {
 
     const [sampleData, setSampleData] = useState({
         sample_name: '',
-        MK: '',
-        ELNnotebooknumber: '',
+        mk: '',
+        eln_notebook_number: '',
         date_entered: (new Date(Date.now())).toISOString().split('T')[0],
         expiration_date: (new Date(Date.now())).toISOString().split('T')[0],
         date_modified: (new Date(Date.now())).toISOString().split('T')[0],
@@ -27,7 +27,7 @@ const Form = () => {
         let { qr_code_key } = (await api.createQRCodeKey(sampleData)).data;
 
         // @ts-ignore
-        dispatch(createSample({...sampleData, qr_code_key}))
+        dispatch(createPSample({...sampleData, qr_code_key}))
     }
 
     return (
@@ -49,8 +49,8 @@ const Form = () => {
                     variant="outlined" 
                     label="MK" 
                     fullWidth 
-                    value={sampleData.MK} 
-                    onChange={(event) => setSampleData({ ...sampleData, MK: event.target.value })}
+                    value={sampleData.mk} 
+                    onChange={(event) => setSampleData({ ...sampleData, mk: event.target.value })}
                 />
 
                 <TextField 
@@ -59,8 +59,8 @@ const Form = () => {
                     variant="outlined" 
                     label="ELN notebooknumber" 
                     fullWidth 
-                    value={sampleData.ELNnotebooknumber} 
-                    onChange={(event) => setSampleData({ ...sampleData, ELNnotebooknumber: event.target.value })}
+                    value={sampleData.eln_notebook_number} 
+                    onChange={(event) => setSampleData({ ...sampleData, eln_notebook_number: event.target.value })}
                 />
 
                 <TextField 

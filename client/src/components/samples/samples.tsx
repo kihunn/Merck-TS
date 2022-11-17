@@ -62,7 +62,7 @@ const Samples = (props: SamplesTableProps) => {
 
     const printers: Printer[] = useSelector((state: any) => state.printers);
 
-    const { newestSamples, auditGroups } = filterNewestSamples(samples);
+    const { newestSamples } = filterNewestSamples(samples);
 
     const classes = useStyles();
     const isAudit = props.isAudit ?? false;
@@ -82,11 +82,7 @@ const Samples = (props: SamplesTableProps) => {
     }
 
     const onEdit = async (event: any, selectedSample: any) => {
-        for (let i = 0; i < samples.length; i++) {
-            if (samples[i].qr_code_key === selectedSample.qr_code_key) {
-                samples[i] = selectedSample;
-            }
-        }
+        samples.push(selectedSample);
     }
 
     return (
@@ -114,7 +110,7 @@ const Samples = (props: SamplesTableProps) => {
                 <TableBody>
                     { 
                         (isAudit ? samples : newestSamples).map((sample: Sample) => (
-                            <SampleRow sample={sample} samples={samples} onPrint={handleGenerateLabel} onEdit={onEdit} isAudit={isAudit}/>
+                            <SampleRow sample={sample} onPrint={handleGenerateLabel} onEdit={onEdit} isAudit={isAudit}/>
                         ))
                     }
                 </TableBody>

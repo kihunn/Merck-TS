@@ -1,13 +1,12 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
-import { getSamples } from '../../../redux/actions/samples';
+import { getPSamples } from '../../../redux/actions/psamples';
 import { getPrinters } from '../../../redux/actions/printer';
 
 import NavBar from "../../../components/NavBar/NavBar"
 
 // import useStyles from './styles'
-import { Container, Grow, Grid } from '@mui/material';
 import PSamples from "../../../components/Samples/PSample";
 
 const PSamplesPage = () => {
@@ -17,7 +16,7 @@ const PSamplesPage = () => {
 
     useEffect(() => {
         // @ts-ignore
-        dispatch(getSamples());
+        dispatch(getPSamples());
         // @ts-ignore
         dispatch(getPrinters())
     }, [dispatch])
