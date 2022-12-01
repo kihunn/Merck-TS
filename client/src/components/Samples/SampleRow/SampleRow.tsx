@@ -25,14 +25,12 @@ import { Sample } from '../../../api/types';
 interface SampleCellProps {
     sample: Sample,
     onPrint: (event: any, sample: any) => void
-    onEdit: (event: any, selectedSample: any) => void,
+    onEdit: (event: any, oldSample: Sample, newSample: Sample) => void,
     isAudit: boolean
 }
 
 const SampleCell = (props: SampleCellProps) => {
-    var sample = props.sample;
-
-     const initialSampleState = {
+    const initialSampleState = {
         qr_code_key: '',
         experiment_id: '',
         storage_condition: '',
@@ -43,6 +41,7 @@ const SampleCell = (props: SampleCellProps) => {
         date_modified: (new Date(Date.now())).toISOString().split('T')[0],
     }
     
+    const [sample, setSample] = useState(props.sample);
     const [selectedSample, setSelectedSample]: [Sample, Function] = useState(Object.create(initialSampleState));
 
     const handleEditRequest = (event: any, sample: any) => {
@@ -52,9 +51,9 @@ const SampleCell = (props: SampleCellProps) => {
     const handleEditSuccess = async (event: any) => {
         // TODO: Shouldn't be called if the sample had no updates
         const { data } = await api.updateSample(selectedSample);
-        props.onEdit(event, data)
-        sample = data;
+        props.onEdit(event, sample, data)
         setSelectedSample(Object.create(initialSampleState))
+        setSample(data);
     }
 
     const handleEditClose = (event: any) => {

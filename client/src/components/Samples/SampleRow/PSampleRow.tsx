@@ -18,9 +18,7 @@ interface PSampleCellProps {
 }
 
 const PSampleCell = (props: PSampleCellProps) => {
-    const sample: PSample = props.sample;
-
-     const initialSampleState = {
+    const initialSampleState = {
         qr_code_key: '',
         sample_name: '',
         mk: '',
@@ -31,6 +29,7 @@ const PSampleCell = (props: PSampleCellProps) => {
     }
     
     const [selectedSample, setSelectedSample]: [PSample, Function] = useState(Object.create(initialSampleState));
+    const [sample, setSample] = useState(props.sample);
 
     const handleEditRequest = (event: any, sample: any) => {
         setSelectedSample(sample);
@@ -38,9 +37,10 @@ const PSampleCell = (props: PSampleCellProps) => {
 
     const handleEditSuccess = async (event: any) => {
         // TODO: Shouldn't be called if the sample had no updates
-        await api.updatePSample(selectedSample);
+        const { data } = await api.updatePSample(selectedSample);
         props.onEdit(event, selectedSample);
         setSelectedSample(Object.create(initialSampleState))
+        setSample(data);
     }
 
     const handleEditClose = (event: any) => {
@@ -51,12 +51,12 @@ const PSampleCell = (props: PSampleCellProps) => {
         sample.qr_code_key != selectedSample.qr_code_key ? (
             <TableRow key={sample.qr_code_key} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell component="th" scope="row">{sample.qr_code_key}</TableCell>
-                <TableCell align="right">{sample.sample_name}</TableCell>
-                <TableCell align="right">{sample.mk}</TableCell>
-                <TableCell align="right">{sample.eln_notebook_number}</TableCell>
-                <TableCell align="right">{sample.date_entered}</TableCell>
-                <TableCell align="right">{sample.date_modified}</TableCell>
-                <TableCell align="right">{sample.expiration_date}</TableCell>
+                <TableCell align="left">{sample.sample_name}</TableCell>
+                <TableCell align="left">{sample.mk}</TableCell>
+                <TableCell align="left">{sample.eln_notebook_number}</TableCell>
+                <TableCell align="left">{sample.date_entered}</TableCell>
+                <TableCell align="left">{sample.date_modified}</TableCell>
+                <TableCell align="left">{sample.expiration_date}</TableCell>
                 {!props.isAudit ? <><TableCell> 
                     <IconButton onClick={(event) => handleEditRequest(event, sample)}> 
                         <Edit /> 

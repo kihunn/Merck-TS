@@ -62,7 +62,7 @@ const Samples = (props: SamplesTableProps) => {
 
     const printers: Printer[] = useSelector((state: any) => state.printers);
 
-    const { newestSamples } = filterNewestSamples(samples);
+    const [viewableSamples, setViewableSamples]: [Sample[], Function] = useState(filterNewestSamples(samples).newestSamples);
 
     const classes = useStyles();
     const isAudit = props.isAudit ?? false;
@@ -81,8 +81,10 @@ const Samples = (props: SamplesTableProps) => {
         setLabelImage(qr_code_image);
     }
 
-    const onEdit = async (event: any, selectedSample: any) => {
-        samples.push(selectedSample);
+    const onSampleEdit = async (event: any, oldSample: Sample, newSample: Sample) => {
+        console.log(oldSample, newSample);
+        viewableSamples.splice(viewableSamples.indexOf(oldSample), 1, newSample);
+        setViewableSamples(viewableSamples);
     }
 
     return (
@@ -109,8 +111,8 @@ const Samples = (props: SamplesTableProps) => {
                 </TableHead>
                 <TableBody>
                     { 
-                        (isAudit ? samples : newestSamples).map((sample: Sample) => (
-                            <SampleRow sample={sample} onPrint={handleGenerateLabel} onEdit={onEdit} isAudit={isAudit}/>
+                        (isAudit ? samples : viewableSamples).map((sample: Sample) => (
+                            <SampleRow key={sample.qr_code_key} sample={sample} onPrint={handleGenerateLabel} onEdit={onSampleEdit} isAudit={isAudit}/>
                         ))
                     }
                 </TableBody>
@@ -123,7 +125,7 @@ const Samples = (props: SamplesTableProps) => {
         }}>
             {
                 labelImage !== '' ? 
-                <div>
+                <div style={{ textAlign: 'center' }}>
                     <img src={`data:image/png;base64,${labelImage}`} alt="Label" style={{ objectFit: 'cover' }} /> 
                     <InputLabel id="printer-label">Printer</InputLabel>
                     <Select
