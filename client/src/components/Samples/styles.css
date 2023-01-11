@@ -1,0 +1,29 @@
+.data-grid-container {
+    min-height: 50vh; 
+    max-height: 65vh; 
+    height: 65vh;
+}
+
+.data-grid-row {
+    opacity: 1.0;
+    font: 14px Arial, Helvetica, sans-serif;
+}
+
+.data-grid-row-expired {
+    opacity: 0.75;
+    background-color: lightcoral;
+}
+
+.img-label {
+    object-fit: cover;
+    border: 1px solid #ddd;
+    margin: auto;
+    margin-bottom: 10px;
+}
+
+.img-label-container {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+    margin: 10px;
+}
