@@ -30,6 +30,7 @@ const PSamplesPage = () => {
                 onRefresh={() => {}}
                 onGenerateLabels={async (selected) => { return [""]; }}
                 onDelete = {async () => {}}
+                auditLink={(id: string) => `/psamples/audit/${id}`}
                 updateSample={api.updatePSample}
                 overrideGridColDefs={[
                     { 
