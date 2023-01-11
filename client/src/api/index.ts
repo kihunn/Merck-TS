@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { Printer } from './types'
 
 const samplesURL = 'http://localhost:5000/samples'
 
@@ -31,6 +32,6 @@ export const createLabel = (sample: any) => {
 
 export const fetchPrinters = () => axios.get(`${qrURL}/printers`)
 
-export const printLabel = (base64label: string, printer: any) => {
+export const printLabel = (base64label: string, printer: Printer) => {
     return axios.post(`${qrURL}/print`, { base64label, printer })
 }

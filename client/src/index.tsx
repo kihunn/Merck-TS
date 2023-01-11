@@ -13,17 +13,16 @@ import thunk from 'redux-thunk';
 import reducers from './redux/reducers/index';
 
 // Page imports
-import SamplesPage from './pages/SamplesPage/SamplesPage';
+import SamplesPage from './pages/SamplesPages/SamplesPage';
 import RootPage from './pages/RootPage/RootPage';
-import CreateSamplePage from './pages/CreateSamplePage/CreateSamplePage';
+import CreateSamplePage from './pages/CreateSamplePages/CreateSamplePage';
 import AuditTable from './components/AuditTable/AuditTable';
-import PSamplesPage from './pages/PharmaTeamPage/PSamplePage/PSamplesPage';
-import PCreateSamplePage from './pages/PharmaTeamPage/PCreateSamplePage/PCreateSamplePage';
+import PSamplesPage from './pages/SamplesPages/PSamplesPage';
+import PCreateSamplePage from './pages/CreateSamplePages/PCreateSamplePage';
 
 import { Team } from './components/AuditTable/AuditTable';
 
-import { ThemeProvider } from '@mui/material/styles';
-import { theme } from './styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const store = configureStore({
     reducer: reducers,
@@ -61,7 +60,31 @@ const router = createBrowserRouter([
     }
 ]);
 
-ReactDOM.createRoot(document.getElementById('root') as (Element | DocumentFragment)).render(
+const theme = createTheme({
+    palette: {
+        primary: {
+            main: 'rgba(0, 133, 124, 255)'
+        },
+        secondary: {
+            main: 'rgba(255, 255, 255, 255)'
+        },
+        error: {
+            main: 'rgba(12, 35, 64, 255)'
+        },
+        warning: {
+            main: 'rgba(110, 206, 178, 255)'
+        },
+        info: {
+            main: 'rgba(247, 247, 247, 247)'
+        },
+    },
+});
+
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
+
+root.render(
     <React.StrictMode>
         <Provider store={store}>
             <ThemeProvider theme={theme}>
