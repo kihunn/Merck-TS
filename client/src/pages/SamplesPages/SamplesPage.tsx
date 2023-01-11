@@ -32,6 +32,7 @@ const SamplesPage = () => {
                 onGenerateLabels={async (selected) => { return [""]; }}
                 onDelete = {async () => {}}
                 updateSample={api.updateSample}
+                auditLink={(id: string) => `/samples/audit/${id}`}
                 overrideGridColDefs={[
                     { 
                         field: 'experiment_id', 
