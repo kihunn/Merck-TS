@@ -1,10 +1,12 @@
-.app-toolbar-button-container {
-    display: flex;
-    flex-wrap: wrap;
-    margin: 5px;
-    padding: 5px;
+.msd-img-container {
+    align-items: flex-end;
+    align-content: flex-end;
+    text-align: end;
+    text-decoration: none;
+    color: inherit;
 }
 
-.app-toolbar-button-container * {
-    margin: auto;
+.link-button {
+    text-decoration: none;
+    color: inherit;
 }

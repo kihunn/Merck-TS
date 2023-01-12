@@ -268,6 +268,7 @@ const SampleTable: React.FC<SampleTableProps> = ({
         return (
             <GridToolbarContainer>
                 <GridToolbar />
+                
                 <Button 
                     startIcon={<NoteAddIcon />} 
                     disabled={selectedSamples.length == 0} 
@@ -275,6 +276,7 @@ const SampleTable: React.FC<SampleTableProps> = ({
                 >
                     Generate Label(s)
                 </Button>
+
                 <Button 
                     startIcon={<DeleteIcon />} 
                     disabled={selectedSamples.length == 0} 
@@ -282,23 +284,25 @@ const SampleTable: React.FC<SampleTableProps> = ({
                 >
                     Delete Sample(s)
                 </Button>
+                
+                <Button 
+                    startIcon={<HistoryIcon />} 
+                    disabled={selectedSamples.length != 1}
+                >
+                    <Link
+                        to={auditLink!(selectedSamples[0]?.audit_id)}
+                        style={{textDecoration: 'none', color: 'inherit'}}
+                    >
+                        View Audit Table    
+                    </Link>
+                </Button>
+
                 <Button 
                     startIcon={<RefreshIcon />} 
                     onClick={onRefresh}
                 >
                     Refresh Samples
                 </Button>
-                    <Button 
-                        startIcon={<HistoryIcon />} 
-                        disabled={selectedSamples.length != 1}
-                    >
-                        <Link
-                            to={auditLink!(selectedSamples[0]?.audit_id)}
-                            style={{textDecoration: 'none', color: 'inherit'}}
-                        >
-                            View Audit Table    
-                        </Link>
-                    </Button>
             </GridToolbarContainer>
         )
     }
@@ -377,7 +381,6 @@ const SampleTable: React.FC<SampleTableProps> = ({
             />
         </div>
         
-
         {
             labelImages.length > 0 ? (
                 <>
