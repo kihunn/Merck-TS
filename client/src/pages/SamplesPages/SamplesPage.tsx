@@ -9,28 +9,46 @@ import NavBar from "../../components/NavBar/NavBar"
 import SampleTable from "../../components/Samples/SampleTable";
 
 import * as api from '../../api/index';
+import { GeneralSample } from "../../api/types";
 
 const SamplesPage = () => {
 
     const dispatch = useDispatch();
 
     useEffect(() => {
+        onRefresh();
+    }, [dispatch])
+
+    const onGenerateLabels = async (selected: GeneralSample[]): Promise<string[]> => {
+        const labels: string[] = [];
+        for (let i = selected.length - 1; i >= 0; i--) {
+            const sample = selected[i];
+            const { data } = await api.createLabel(sample);
+            labels.push(data.qr_code_image);
+        }
+        return labels;
+    }
+
+    const onRefresh = () => {
         // @ts-ignore
         dispatch(getSamples());
         // @ts-ignore
         dispatch(getPrinters())
-    }, [dispatch])
+    }
 
-    // TODO: Create the on refresh, on generate labels, and on delete functions in this file
+    // TODO: Set up api endpoint for deleting samples
+    const onDelete = async (selected: GeneralSample[]) => {
+    
+    }
 
     return (
         <>
             <NavBar/>
             <SampleTable 
                 selector="samples"
-                onRefresh={() => {}}
-                onGenerateLabels={async (selected) => { return [""]; }}
-                onDelete = {async () => {}}
+                onRefresh={onRefresh}
+                onGenerateLabels={onGenerateLabels}
+                onDelete={onDelete}
                 updateSample={api.updateSample}
                 auditLink={(id: string) => `/samples/audit/${id}`}
                 overrideGridColDefs={[

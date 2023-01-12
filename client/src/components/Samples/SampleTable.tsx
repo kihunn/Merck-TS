@@ -356,7 +356,7 @@ const SampleTable: React.FC<SampleTableProps> = ({
     return (
         <>
         <div className='data-grid-container'>
-            <DataGrid
+            <DataGrid className='data-grid'
                 experimentalFeatures={{ newEditingApi: true }}
                 rows={viewableSamples}
                 columns={columns}
@@ -364,7 +364,7 @@ const SampleTable: React.FC<SampleTableProps> = ({
                 rowsPerPageOptions={[10, 25, 50]}
                 getRowId={(sample: GeneralSample) => sample.qr_code_key}
                 components={{ Toolbar: isAuditTable ? GridToolbar : CustomToolbar }}
-                isCellEditable={(params) => params.field !== 'qr_code_key' && !isAuditTable}
+                isCellEditable={(params) => params.field !== 'qr_code_key' && params.field != 'date_entered' && !isAuditTable}
                 disableSelectionOnClick
                 checkboxSelection
                 onSelectionModelChange={onSelectionChange}

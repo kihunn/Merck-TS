@@ -14,6 +14,16 @@
     background-color: lightcoral;
 }
 
+/* Disables row highliting on the data grid */
+.data-grid-row-expired:hover {
+    background-color: lightcoral !important;
+}
+
+/* Disables row highliting on the data grid */
+.data-grid-row:hover{
+    background-color: inherit !important;
+}
+
 .img-label {
     object-fit: cover;
     border: 1px solid #ddd;

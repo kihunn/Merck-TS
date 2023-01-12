@@ -1,0 +1,10 @@
+.app-toolbar-button-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 5px;
+    padding: 5px;
+}
+
+.app-toolbar-button-container * {
+    margin: auto;
+}

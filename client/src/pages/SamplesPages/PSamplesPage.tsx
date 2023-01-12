@@ -9,6 +9,7 @@ import NavBar from "../../components/NavBar/NavBar"
 import SampleTable from "../../components/Samples/SampleTable";
 
 import * as api from '../../api/index';
+import { GeneralSample } from "../../api/types";
 
 const PSamplesPage = () => {
 
@@ -16,20 +17,32 @@ const PSamplesPage = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
+        onRefresh();
+    }, [dispatch])
+
+    const onGenerateLabels = async (selected: GeneralSample[]): Promise<string[]> => {
+        return [];
+    }
+
+    const onRefresh = () => {
         // @ts-ignore
         dispatch(getPSamples());
         // @ts-ignore
         dispatch(getPrinters())
-    }, [dispatch])
+    }    
+
+    const onDelete = async () => {
+
+    }
 
     return (
         <>
             <NavBar/>
             <SampleTable 
                 selector="psamples"
-                onRefresh={() => {}}
-                onGenerateLabels={async (selected) => { return [""]; }}
-                onDelete = {async () => {}}
+                onRefresh={onRefresh}
+                onGenerateLabels={onGenerateLabels}
+                onDelete={onDelete}
                 auditLink={(id: string) => `/psamples/audit/${id}`}
                 updateSample={api.updatePSample}
                 overrideGridColDefs={[
