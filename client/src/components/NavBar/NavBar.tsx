@@ -1,15 +1,113 @@
-import { AppBar, Typography, Button, Container, Grow, Box, Toolbar } from '@mui/material';
-import useStyles from './styles'
+import { AppBar, Typography, Button, Container, Grow, Box, Toolbar, IconButton, Drawer, Divider, List, ListItem, ListItemButton, ListItemIcon } from '@mui/material';
+import MenuIcon from "@mui/icons-material/Menu";
+import CreateIcon from '@mui/icons-material/Create';
+import PageviewIcon from '@mui/icons-material/Pageview';
+
 import msdlogo from '../../images/msdlogo.png'
 import { Link } from 'react-router-dom';
 import "./styles.css";
+import React, { useState } from 'react';
+import { Home } from '@mui/icons-material';
 
-const NavBar = (props: any) => {
-    // const classes = useStyles()
+const NavBar: React.FC<React.PropsWithChildren> = ({ children }: React.PropsWithChildren) => {
+    const [isSideBarOpen, setIsSideBarOpen] = useState(false);
 
-    const linkStyle = {
-        textDecoration: 'none',
-        color: 'white'
+    const toggleDrawer = () => {
+        setIsSideBarOpen(!isSideBarOpen);
+    }
+
+    const Sidebar = () => {
+        return (
+            <Box
+                sx={{ width: 250 }}
+                role="presentation"
+                onClick={toggleDrawer}
+                onKeyDown={toggleDrawer}
+            >
+                <List>
+                    <ListItem key={"home"} disablePadding>
+                        <ListItemButton style={{ textAlign: "center" }}>
+                            <Link to="/" className="link-button">
+                                <ListItemIcon>
+                                    <Home />
+                                </ListItemIcon>
+                                <Typography variant="h6" align="center" color="primary" component="div">
+                                    Home
+                                </Typography>
+                            </Link>
+                        </ListItemButton>
+                    </ListItem>
+                </List>
+
+                <Divider />
+                
+                <List>
+                    <ListItem key={"ar&d-header"}>
+                        <Typography variant="h5" align="center" color="primary" component="div">
+                            AR&D Team
+                        </Typography>
+                    </ListItem>
+                    <ListItem key={"samples-table"} disablePadding>
+                        <ListItemButton>
+                            <Link to="/samples" className="link-button">
+                                <ListItemIcon>
+                                    <PageviewIcon />
+                                </ListItemIcon>
+                                <Typography variant="h6" align="center" color="primary" component="div">
+                                    View Samples
+                                </Typography>
+                            </Link>
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem key={"samples-form"} disablePadding>
+                        <ListItemButton>
+                            <Link to="/samples/create" className="link-button">
+                                <ListItemIcon>
+                                    <CreateIcon />
+                                </ListItemIcon>
+                                <Typography variant="h6" align="center" color="primary" component="div">
+                                    Create Sample
+                                </Typography>
+                            </Link>
+                        </ListItemButton>
+                    </ListItem>
+                </List>
+
+                <Divider />
+
+                <List>
+                    <ListItem key={"pcsc-header"}>
+                        <Typography variant="h5" align="center" color="primary" component="div">
+                            PCSC Team
+                        </Typography>
+                    </ListItem>
+                    <ListItem key={"psamples-table"} disablePadding>
+                        <ListItemButton>
+                            <Link to="/psamples" className="link-button">
+                                <ListItemIcon>
+                                    <PageviewIcon />
+                                </ListItemIcon>
+                                <Typography variant="h6" align="center" color="primary" component="div">
+                                    View Samples
+                                </Typography>
+                            </Link>
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem key={"psamples-form"} disablePadding>
+                        <ListItemButton>
+                            <Link to="/psamples/create" className="link-button">
+                                <ListItemIcon>
+                                    <CreateIcon />
+                                </ListItemIcon>
+                                <Typography variant="h6" align="center" color="primary" component="div">
+                                    Create Sample
+                                </Typography>
+                            </Link>
+                        </ListItemButton>
+                    </ListItem>
+                </List>
+            </Box>
+        )
     }
 
     return (        
@@ -17,51 +115,40 @@ const NavBar = (props: any) => {
             <Box sx={{ flexGrow: 1 }}>
                 <AppBar position="static" color="inherit" style={{ padding: '10px', margin: '10px' }}>
                     <Toolbar>
+                        <React.Fragment key={"sidebar"}>
+                            <IconButton
+                                size="large"
+                                edge="start"
+                                aria-label="menu"
+                                onClick={toggleDrawer} 
+                                onKeyDown={toggleDrawer}
+                            >
+                                <MenuIcon />
+                            </IconButton>   
+                            <Drawer
+                                anchor={"left"}
+                                open={isSideBarOpen}
+                                onClose={toggleDrawer}
+                            >
+                                <Sidebar />
+                            </Drawer>   
+                        </React.Fragment>
+
                         <Typography variant="h4" align="center" color="primary" component="div">
                             Merck Label Dashboard
                         </Typography>
 
-                        {/* <Button
-                            variant='contained'
-                        >
-                            <Link to="/" style={linkStyle}>Home</Link>
-                        </Button> */}
-
-                        <div className="app-toolbar-button-container">
-                            <Button
-                                variant='contained'
-                            >
-                                <Link to="/psamples" style={linkStyle}>View Samples - Pharmaceutical Team</Link>
-                            </Button>
-
-                            <Button
-                                variant='contained'
-                            >
-                                <Link to="/psamples/create" style={linkStyle}>Create Sample - Pharmaceutical Team</Link>
-                            </Button>
-
-                            <Button
-                                variant='contained'
-                            >
-                                <Link to="/samples" style={linkStyle}>View Samples - AR&D Team</Link>
-                            </Button>
-
-                            <Button
-                                variant='contained'
-                            >
-                                <Link to="/samples/create" style={linkStyle}>Create Sample - AR&D Team</Link>
-                            </Button>  
-                        </div> 
-
-                        <Link to="/" style={linkStyle}>
-                            <img src={msdlogo} alt="MSD Logo" height="60"/>
-                        </Link>
+                        <div className="msd-img-container">
+                            <Link to="/">
+                                <img src={msdlogo} alt="MSD Logo" height="60"/>
+                            </Link>
+                        </div>
                     </Toolbar>
                 </AppBar>
             </Box>
             <Grow>
                 <Container>
-                    {props.children}
+                    {children}
                 </Container>
             </Grow>
         </Container>
