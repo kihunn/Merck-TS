@@ -207,6 +207,8 @@ const SampleTable: React.FC<SampleTableProps> = ({
         for (let i = labelImages.length - 1; i >= 0; i--) {
             const image: string = labelImages.pop()!;
             await api.printLabel(image, device);
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            console.log("Printed label");
             setLabelImages([...(labelImages ?? [])]);
         }
     }
