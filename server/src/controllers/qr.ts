@@ -1,5 +1,5 @@
 import { generateHashKey, generateLabel } from "../brother/qr";
-import { printLabel } from "../brother/print";
+import { printLabels } from "../brother/print";
 import prisma, { Printer, Sample } from "../db";
 
 const labelCache: { [key: string]: string } = {};
@@ -33,10 +33,10 @@ async function createQRCodeLabel(req: any, res: any) {
 
 async function printQRCodeLabel(req: any, res: any) {
     const data = req.body;
-    const base64label = data.base64label;
+    const base64labels = data.base64labels;
     const printer: Printer = data.printer;
     try {
-        const success = await printLabel(base64label, printer)
+        const success = await printLabels(base64labels, printer)
         res.status(200).json({ success });
     } catch (error: any) {
         res.status(500).json({ message: error.message });

@@ -125,7 +125,9 @@ export async function generateLabel(sample: Sample, options: LabelOptions = Larg
     whiteLabel.print(FONTS[options.fonts.largeFont], curTextPos.x, curTextPos.y, `Experiment ID: ${sample.experiment_id}`, maxTextDim.width)
     curTextPos.y += textYIncrement
 
-    whiteLabel.print(FONTS[options.fonts.largeFont], curTextPos.x, curTextPos.y, `Contents: ${sample.contents}`, maxTextDim.width)
+    const contentsText = `Contents: ${sample.contents}`
+    whiteLabel.print(FONTS[options.fonts.largeFont], curTextPos.x, curTextPos.y, contentsText, maxTextDim.width)
+    Jimp.measureText(FONTS[options.fonts.largeFont], contentsText) > maxTextDim.width ? curTextPos.y += textYIncrement : null;
     curTextPos.y += textYIncrement
 
     const prepDateText = `Prep: ${sample.date_entered}`

@@ -1,29 +1,34 @@
 import { PrismaClient } from '@prisma/client'
 const prisma: PrismaClient = new PrismaClient()
 
-export interface Sample {
+export interface GeneralSample {
     qr_code_key: string,
+    audit_id: string,
+    audit_number: number,
+    date_entered: string,
+    date_modified: string,
+    expiration_date: string,
+}
+
+export interface Sample extends GeneralSample {
     experiment_id: string,
     storage_condition: string,
     contents: string,
     analyst: string,
-    date_entered: string,
-    date_modified: string,
-    expiration_date: string,
-    audit_id: string,
-    audit_number: number
 }
 
-export interface PSample {
-    qr_code_key: string,
+export interface PSample extends GeneralSample {
     sample_name: string,
     mk: string,
     eln_notebook_number: string,
-    date_entered: string,
-    date_modified: string,
-    expiration_date: string,
+}
+
+export interface Deleted {
+    qr_code_key: string,
     audit_id: string,
-    audit_number: number
+    audit_number: number,
+    type: string,
+    date_deleted: string,
 }
 
 export interface Printer {
@@ -33,11 +38,11 @@ export interface Printer {
     model: string
 }
 
-export class TableDoesNotExistError extends Error {
-    constructor(tableName: string) {
-        super(`Table ${tableName} does not exist`);
-    }
-}
+// export class TableDoesNotExistError extends Error {
+//     constructor(tableName: string) {
+//         super(`Table ${tableName} does not exist`);
+//     }
+// }
 
 // export async function dropTable(tableName: string) {
 //     return await prisma.$queryRawUnsafe(`DROP TABLE IF EXISTS ${tableName}`);
