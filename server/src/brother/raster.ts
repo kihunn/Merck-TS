@@ -8,9 +8,11 @@ export interface BrotherQLMediaInfo {
     type: BrotherQLMediaType;
 }
 
+export type BrotherQLRasterImages = { 0: Jimp } & Jimp[];
+
 export interface BrotherQLRasterOptions {
     media: BrotherQLMediaInfo;
-    image: Jimp;
+    images: BrotherQLRasterImages; // Array of at least 1 Jimp image
     prioritizeQuality?: boolean;
     dpi600?: boolean;
     twoColorPrinting?: boolean;
@@ -20,7 +22,10 @@ export interface BrotherQLRasterOptions {
     compression?: boolean;
 }
 
-const DefaultOptionals: Required<Omit<BrotherQLRasterOptions, "media" | "image">> = {
+type RequiredKeys = "media" | "images";
+type RequiredOptionals = Required<Omit<BrotherQLRasterOptions, RequiredKeys>>;
+
+const DefaultOptionals: RequiredOptionals = {
     prioritizeQuality: false,
     dpi600: false,
     twoColorPrinting: false,
@@ -30,11 +35,7 @@ const DefaultOptionals: Required<Omit<BrotherQLRasterOptions, "media" | "image">
     compression: false
 };
 
-const join = (obj: BrotherQLRasterOptions, defaults: Required<Omit<BrotherQLRasterOptions, "media" | "image">>): Required<BrotherQLRasterOptions> => {
-    return Object.assign({}, defaults, obj);
-}
-
-const int = (bool: boolean): number => {
+const int = (bool: boolean): 0 | 1 => {
     return bool ? 1 : 0;
 }
 
@@ -42,11 +43,29 @@ export class BrotherQLRaster {
 
     private chunks: Buffer[];
     private options: Required<BrotherQLRasterOptions>;
+    private page: number = 0;
 
     constructor(options: BrotherQLRasterOptions) {
-        this.options = join(options, DefaultOptionals);
-        console.log(this.options);
+        this.options = Object.assign({}, DefaultOptionals, options)
         this.chunks = [];
+    }
+
+    /**
+     * Converts a label size in millimeters to its equivalent in pixels given 
+     * the DPI of the printer.
+     * @param mmWidth
+     * @param mmLength
+     * @param dpi 
+     * @returns 
+     */
+    public static convertToPixels(mmWidth: number, mmLength: number, dpi: number = 300): [number, number] {
+        const inWidth = mmWidth / 25.4;
+        const inLength = mmLength / 25.4;
+        const aspect = (mmWidth > mmLength) ? mmWidth / mmLength : mmLength / mmWidth;
+        const diagonal = dpi * Math.sqrt(Math.pow(inWidth, 2) + Math.pow(inLength, 2));
+        const length = diagonal / Math.sqrt(1 + Math.pow(aspect, 2));
+        const width = diagonal / Math.sqrt(1 + Math.pow(1 / aspect, 2));
+        return [width, length]
     }
 
     public addInvalidate(): BrotherQLRaster {
@@ -67,7 +86,7 @@ export class BrotherQLRaster {
     public sendAutomaticStatusNotification(notify: boolean = false): BrotherQLRaster {
         // normally false = notify, true = don't notify so we invert it
         // this.chunks.push(Buffer.from([0x1b, 0x69, 0x21, int(!notify)]));
-        this.chunks.push(Buffer.from([0x1b, 0x69, 0x21, 0x01]));
+        this.chunks.push(Buffer.from([0x1b, 0x69, 0x21, 0x00]));
         return this;
     }
 
@@ -83,13 +102,15 @@ export class BrotherQLRaster {
         validFlags |= int(_prioritizeQuality && !this.options.twoColorPrinting) << 6;
 
         this.chunks.push(Buffer.from([
-            0x1, 0x69, 0x7a,
+            0x1b, 0x69, 0x7a,
             validFlags,
-            _media.type === "DieCut" ? 0x0b : 0x0a,
-            _media.width ?? 0, _media.length ?? 0,
-            0x00, 0xdf, 0x03, 0x00,
-            0x00, 0x00, 0x00
+            _media.type == "DieCut" ? 0x0b : 0x0a,
+            _media.width, _media.length,
+            0xdf, 0x03, 0x00, 0x00,
+            this.page, 0x00
         ]));
+
+        this.page++;
         return this;
     }
 
@@ -99,11 +120,11 @@ export class BrotherQLRaster {
         // specify autocut
         this.chunks.push(Buffer.from([0x1b, 0x69, 0x4d, int(_autocut) << 6]));
         // specify cut each n labels
-        this.chunks.push(Buffer.from([0x1b, 0x69, 0x41, cutEvery!]));
+        this.chunks.push(Buffer.from([0x1b, 0x69, 0x41, _cutEvery!]));
         return this;
     }
 
-    public addTwoColorPrintingCutAtEndHighResolution(twoColor?: boolean, cutAtEnd?: boolean, highRes?: boolean): BrotherQLRaster {
+    public addExpandedModeOptions(twoColor?: boolean, cutAtEnd?: boolean, highRes?: boolean): BrotherQLRaster {
         const _twoColor = twoColor ?? this.options.twoColorPrinting;
         const _cutAtEnd = cutAtEnd ?? this.options.cutAtEnd;
         const _highRes = highRes ?? this.options.dpi600;
@@ -115,7 +136,7 @@ export class BrotherQLRaster {
     }
 
     public addMargins(n1?: number, n2?: number): BrotherQLRaster {
-        this.chunks.push(Buffer.from([0x1b, 0x69, 0x64, n1 ?? 0, n2 ?? 0]));
+        this.chunks.push(Buffer.from([0x1b, 0x69, 0x64, n1 ?? 0x00, n2 ?? 0x00]));
         return this;
     }
 
@@ -125,28 +146,32 @@ export class BrotherQLRaster {
         return this;
     }
 
-    public addRasterData(image?: Jimp): BrotherQLRaster {
-        const _image = image ?? this.options.image;
-
+    public addRasterData(image: Jimp): BrotherQLRaster {
         const labelLength = this.options.media.length;
         const labelWidth = this.options.media.width;
 
-        _image.resize(labelLength * 11, labelLength * 11 / 3.125);
-        _image.greyscale().contrast(1)  
-        _image.rotate(90);
+        // convert to pixels but a little too large
+        const [widthpx, lengthpx] = BrotherQLRaster.convertToPixels(labelLength, labelWidth);
+
+        if (labelLength != 0)
+            image.resize(labelLength * 11, (labelLength * 11) / 3.125);
+        image.greyscale().contrast(1)  
+        if (image.bitmap.width > image.bitmap.height)
+            image.rotate(90);
 
         const bufferSize = labelLength + 3;
+        const topMargin =  Math.floor((labelWidth / 2) * (labelWidth / labelLength));
 
-        for (let y = 0; y < _image.bitmap.height; y++) {
+        for (let y = 0; y < image.bitmap.height; y++) {
             let row = Buffer.alloc(bufferSize);
             row[0] = 0x67;
             row[1] = 0x00;
             row[2] = labelLength;
-            for (let x = 0; x < _image.bitmap.width; x++) {
-                if (_image.getPixelColor(x, y) == 255) {
+            for (let x = 0; x < image.bitmap.width; x++) {
+                if (image.getPixelColor(x, y) == 255) {
                     let byteNum = labelLength - Math.floor((x / 8) + 3);
                     let bitOffset = x % 8;
-                    row[byteNum - Math.floor((labelWidth / 2) * (labelWidth / labelLength))] |= 1 << bitOffset;
+                    row[byteNum - topMargin] |= 1 << bitOffset;
                 }
             }
             if (this.options.compression) {
@@ -158,8 +183,13 @@ export class BrotherQLRaster {
         return this;
     }
 
+    public addPageEnd(): BrotherQLRaster {
+        this.chunks.push(Buffer.from([0x0c]));
+        return this;
+    }
+
     public addEndRaster(): BrotherQLRaster {
-        this.chunks.push(Buffer.from([0x1a]));
+        this.chunks.push(Buffer.from([0x1A]));
         return this;
     }
 
@@ -170,11 +200,19 @@ export class BrotherQLRaster {
             .sendAutomaticStatusNotification()
             .addMediaTypeAndQuality()
             .addAutoCut()
-            .addTwoColorPrintingCutAtEndHighResolution()
+            .addExpandedModeOptions()
             .addMargins()
-            .addCompression()
-            .addRasterData()
-            .addEndRaster();
+            .addCompression();
+
+        for (let l, i = 0; i < (l = this.options.images.length); i++) {
+            this.addRasterData(this.options.images[i]);
+
+            if (i < l - 1)
+                this.addPageEnd();
+            else 
+                this.addEndRaster();
+        }
+
         return this;
     }
 
@@ -182,110 +220,4 @@ export class BrotherQLRaster {
         return Buffer.concat(this.chunks);
     }
     
-}
-
-export class Raster {
-
-    public readonly data: Buffer[] = [];
-
-    constructor() { }
-
-    private rotateMatrixImage(bwMatrixImage: number[][], width: number, height: number) {
-        let rows = [];
-        for (let x = 0; x < width; x++) {
-            let cols = [];
-            for (let y = height - 1; y >= 0; y--) {
-                cols.push(bwMatrixImage[y][x]);
-            }
-            rows.push(cols);
-        }
-    
-        // noinspection JSSuspiciousNameCombination
-        return {
-            'height': width,
-            'width': height,
-            data: rows
-        };
-    }
-
-    public addInvalidate() { this.data.push(Buffer.alloc(400)) }
-    public addInitialize() { this.data.push(Buffer.from([0x1b, 0x40])) }
-    public addSwitchMode() { this.data.push(Buffer.from([0x1b, 0x69, 0x61, 0x01])) }
-    public addStatusNotification() { this.data.push(Buffer.from([0x1b, 0x69, 0x21, 0x00])) }
-    public addMediaType(width: number = /*29*/62, length: number = /*90*/100, dieCut: boolean = true) { 
-        this.data.push(
-            Buffer.from([0x1b, 0x69, 0x7a, 0x8e, dieCut ? 0x0b : 0x0a, width, dieCut ? length : 0x00, 0xdf, 0x03, 0x00, 0x00, 0x00, 0x00])
-        ) 
-    }
-    public addAutoCut() { this.data.push(Buffer.from([0x1b, 0x69, 0x4d, 1 << 6])); }
-    public cutEach(n: number = 1) { this.data.push(Buffer.from([0x1b, 0x69, 0x41, n])) }
-    public addExpandedMode() { this.data.push(Buffer.from([0x1b, 0x69, 0x4b, 1 << 3])); }
-    public addCutAtEnd() { this.data.push(Buffer.from([0x1b, 0x69, 0x4b, 0x08])); }
-    public addMargins() { this.data.push(Buffer.from([0x1b, 0x69, 0x64, 0x00, 0x00])); }
-    public addCompression() { this.data.push(Buffer.from([0x4d, 0x00])) }
-    public async addPrintData(img: Jimp): Promise<void> {
-        const labelLength = 100;
-        const labelWidth = 62;
-
-        img.resize(labelLength * 11, labelLength * 11 / 3.125);
-        img.greyscale().contrast(1)  
-        img.rotate(90);
-
-        // const labelWidth = 29;
-        const bufferSize = labelLength + 3;
-
-        for (let y = 0; y < img.bitmap.height; y++) {
-            let row = Buffer.alloc(bufferSize);
-            row[0] = 0x67;
-            row[1] = 0x00;
-            row[2] = labelLength;
-            for (let x = 0; x < img.bitmap.width; x++) {
-                if (img.getPixelColor(x, y) == 255) {
-                    let byteNum = labelLength - Math.floor((x / 8) + 3);
-                    let bitOffset = x % 8;
-                    row[byteNum - Math.floor((labelWidth / 2) * (labelWidth / labelLength))] |= 1 << bitOffset;
-                }
-            }
-            this.data.push(row);
-        }
-            // for (let y = 0; y < img.bitmap.height; y++) {
-            //     // Raster line
-            //     let row = Buffer.alloc(bufferSize);
-            //     // Raster command?
-            //     row[0] = 0x67;
-            //     row[1] = 0x00;
-            //     row[2] = labelWidth;
-            //     for (let x = 0; x < img.bitmap.width; x++) {
-            //         if (img.getPixelColor(x, y) == 255) {
-            //             let byteNum = bufferSize - Math.floor((x / 8) + 3);
-            //             let bitOffset = x % 8;
-            //             row[byteNum] |= 1 << bitOffset;
-            //         }
-            //     }
-            //     console.log(row)
-            //     this.data.push(row);
-            // }
-
-    }
-    public addEndLabel() { this.data.push(Buffer.from([0x1A])) }
-
-    public addAll(): void {
-        this.addInvalidate();
-        this.addInitialize();
-        this.addSwitchMode();
-        this.addStatusNotification();
-        this.addMediaType(/*29*/62, /*90*/100, true);
-        this.addAutoCut();
-        this.cutEach(1);
-        this.addExpandedMode();
-        this.addCutAtEnd();
-        this.addMargins();
-        this.addCompression();
-    }
-
-    public get() { 
-        this.addEndLabel();
-        return Buffer.concat(this.data); 
-    }
-
 }

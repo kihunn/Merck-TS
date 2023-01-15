@@ -35,6 +35,14 @@ model printers {
     model String
 }
 
+model deleted {
+    audit_id String @id
+    audit_number Int
+    qr_code_key String @unique
+    type String
+    date_deleted String
+}
+
 generator client {
     provider = "prisma-client-js"
 }

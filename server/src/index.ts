@@ -7,6 +7,7 @@ import prisma from './db'
 import sampleRoutes from './routes/samples'
 import psampleRoutes from './routes/psamples'
 import qrRoutes from './routes/qr'
+import deletedRoutes from './routes/deleted'
 
 (async function () {
     const app: express.Express = express()
@@ -19,6 +20,7 @@ import qrRoutes from './routes/qr'
     app.use('/samples', sampleRoutes)
     app.use('/psamples', psampleRoutes)
     app.use('/qr', qrRoutes);
+    app.use('/deleted', deletedRoutes);
 
     const server = app.listen(port, () => {
         console.log(`Server is running on port ${port}`)

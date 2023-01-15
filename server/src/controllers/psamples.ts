@@ -2,12 +2,12 @@ import prisma, { PSample } from "../db";
 import KSUID from 'ksuid';
 import { generateHashKey } from "../brother/qr";
 
-async function getPSamples(req: any, res: any) {
+export async function getPSamples(req: any, res: any) {
     const samples = await prisma.psamples.findMany();
     res.status(200).json(samples);
 }
 
-async function getPSample(req: any, res: any) {
+export async function getPSample(req: any, res: any) {
     const { qr_code_key } = req.params
     try {
         const sample = await prisma.psamples.findUnique({
@@ -21,7 +21,7 @@ async function getPSample(req: any, res: any) {
     }
 }
 
-async function createPSample(req: any, res: any) {
+export async function createPSample(req: any, res: any) {
     const sample = req.body
     try {
         console.log(`Creating psample ${JSON.stringify(sample, null, 4)}`)
@@ -38,7 +38,7 @@ async function createPSample(req: any, res: any) {
     }
 }
 
-async function updatePSample(req: any, res: any) {
+export async function updatePSample(req: any, res: any) {
     const newSample = req.body;
     try {
         // @ts-ignore
@@ -62,11 +62,4 @@ async function updatePSample(req: any, res: any) {
         console.log(error)
         res.status(500).json({ message: error.message })
     }
-}
-
-export {
-    getPSamples,
-    getPSample,
-    createPSample,
-    updatePSample
 }

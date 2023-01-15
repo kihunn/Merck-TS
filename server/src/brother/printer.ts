@@ -1,5 +1,10 @@
 import IPP from "ipp";
 
+// @ts-ignore
+IPP.parse.handleUnknownTag = function(tag, name, length, read) {
+  return length ? read(length) : undefined;
+};
+
 export class BrotherQLPrinter extends IPP.Printer {
 
     async executeAsync(operation: IPP.PrinterOpertaion, request: IPP.FullRequest): Promise<IPP.FullResponse> {
@@ -23,8 +28,8 @@ export class BrotherQLPrinter extends IPP.Printer {
         }));
     }
 
-    async print(data: Buffer): Promise<IPP.PrintJobResponse> {
-        return <IPP.PrintJobResponse> (await this.executeAsync('Print-Job', {
+    async print(data: Buffer): Promise<boolean> {
+        const job = <IPP.PrintJobResponse> (await this.executeAsync('Print-Job', {
             'operation-attributes-tag': {
                 'attributes-charset': 'utf-8',
                 'job-name': 'print-job',
@@ -35,6 +40,34 @@ export class BrotherQLPrinter extends IPP.Printer {
                 'orientation-requested': 'landscape',
             },
             'data': data
+        }));
+
+        const id = job["job-attributes-tag"]["job-id"]
+
+        // hacky way to figure out if a job is completed
+        var completed: boolean = false;
+        await new Promise<void>((resolve) => {
+            const interval = setInterval(async () => {
+                if (!completed) {
+                    const status = await this.getJob(id);
+                    // @ts-ignore
+                    completed = status["job-attributes-tag"]["job-state"] == "completed";
+                } else {
+                    clearInterval(interval);
+                    resolve();
+                }
+            }, 250);
+        })
+
+        return completed;
+    }
+
+    async getJob(jobId: number) {
+        return <IPP.GetJobAttributesResponse> (await this.executeAsync('Get-Job-Attributes', {
+            'operation-attributes-tag': {
+                'requesting-user-name': 'class',
+                'job-id': jobId
+            }
         }));
     }
 
