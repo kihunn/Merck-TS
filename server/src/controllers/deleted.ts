@@ -19,7 +19,7 @@ export async function getFullDeleted(req: any, res: any) {
     const allDeleted: ((Sample | PSample) & Deleted)[] = [];
     for (const d of deleted) {
         switch (d.type) {
-            case "sample":
+            case "ARND":
                 const sample: Sample = (await prisma.samples.findUnique({
                     where: {
                         qr_code_key: d.qr_code_key,
@@ -27,7 +27,7 @@ export async function getFullDeleted(req: any, res: any) {
                 }))!;
                 allDeleted.push({ ...d, ...sample });
                 break;
-            case "psample":
+            case "PSCS":
                 const psample: PSample = (await prisma.psamples.findUnique({
                     where: {
                         qr_code_key: d.qr_code_key,

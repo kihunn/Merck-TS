@@ -14,6 +14,12 @@ export function formatPrinterURL(printer: Printer) {
 export async function printLabels(base64labels: string[], printer: Printer) {
     const brotherPrinter = new BrotherQLPrinter(formatPrinterURL(printer));
     const printerAttributes = await brotherPrinter.getAttributes();
+    
+    // Printer took too long to respond or we couldnt connect
+    if (printerAttributes === undefined) {
+        return false;
+    }
+
     // @ts-ignore
     const mediaName: string = printerAttributes["printer-attributes-tag"]["media-ready"];
     var [width, length] = RegExp(/(\d+)x(\d+)/).exec(mediaName)!.slice(1).map(Number);

@@ -7,12 +7,16 @@ IPP.parse.handleUnknownTag = function(tag, name, length, read) {
 
 export class BrotherQLPrinter extends IPP.Printer {
 
-    async executeAsync(operation: IPP.PrinterOpertaion, request: IPP.FullRequest): Promise<IPP.FullResponse> {
+    async executeAsync(operation: IPP.PrinterOpertaion, request: IPP.FullRequest): Promise<IPP.FullResponse | undefined> {
         return new Promise((resolve, reject) => {
+            const rejectAutomatically = setTimeout(() => {
+                resolve(undefined);
+            }, 5000);
             this.execute(operation, request, (err, res) => {
                 if (err) {
                     reject(err);
                 } else {
+                    clearTimeout(rejectAutomatically);
                     resolve(res);
                 }
             });
@@ -81,7 +85,7 @@ export class BrotherQLPrinter extends IPP.Printer {
 
     async cancelAllJobs(): Promise<IPP.FullResponse | null> {
         const jobs = await this.getJobs();
-        var response: IPP.FullResponse | null = null;
+        var response: IPP.FullResponse | undefined = undefined;
 
         if (jobs['job-attributes-tag']) {
             if (Array.isArray(jobs['job-attributes-tag'])) {
@@ -105,7 +109,7 @@ export class BrotherQLPrinter extends IPP.Printer {
             }
         }
 
-        return response;
+        return response!;
     }
 
 } 
