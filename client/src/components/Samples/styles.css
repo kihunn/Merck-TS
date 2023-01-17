@@ -1,26 +1,35 @@
-.data-grid-container {
-    min-height: 50vh; 
-    max-height: 65vh; 
-    height: 65vh;
+:root {
+    --data-grid-expired-color: lightcoral;
 }
 
-.data-grid-row {
+.data-grid-container {  
+    height: 75vh;
+    display: flex;
+    flex-flow: column;
+    margin: 20px;
+}
+
+.data-grid {
+    flex: 1 1 auto;
+}
+
+.MuiDataGrid-row {
     opacity: 1.0;
     font: 14px Arial, Helvetica, sans-serif;
 }
 
 .data-grid-row-expired {
     opacity: 0.75;
-    background-color: lightcoral;
+    background-color: var(--data-grid-expired-color);
 }
 
 /* Disables row highliting on the data grid */
 .data-grid-row-expired:hover {
-    background-color: lightcoral !important;
+    background-color: var(--data-grid-expired-color) !important;
 }
 
 /* Disables row highliting on the data grid */
-.data-grid-row:hover{
+.MuiDataGrid-row:hover{
     background-color: inherit !important;
 }
 
@@ -36,4 +45,14 @@
     flex-wrap: wrap;
     padding: 10px;
     margin: 10px;
+}
+
+.printer-selector-container {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+    margin: auto;
+    align-content: center;
+    justify-content: center;
+    width: 30vw;
 }

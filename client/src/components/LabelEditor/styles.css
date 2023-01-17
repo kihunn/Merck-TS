@@ -1,0 +1,63 @@
+.label-editor {
+    --editor-height: 60vh;
+    --editor-width: 65vw;
+    width: var(--editor-width);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: auto;
+    padding: 10px;
+}
+
+.label-editor-controller {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    height: var(--editor-height);
+    margin-right: 10px;
+    align-items: center;
+}
+
+.label-editor-container {
+    flex: 0 0 0;
+    flex-grow: 2;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    display: flex;
+    height: var(--editor-height);
+    margin: auto;
+    border: 2px solid rgba(0, 133, 124, 1);
+}
+
+.label-editor-label-container {
+    display: inline-block;
+    width: 375px;
+    height: 231px
+}
+
+.editable-text-p {
+    user-select: none;
+    margin: 0;
+    font: 14px Arial, Helvetica, sans-serif;
+    width: max-content;
+    height: max-content;
+}
+
+.editable-text-input {
+    user-select: none;
+    border: 1px solid black;
+    background-color: rgba(255, 255, 255, 0);
+    outline: none;
+    margin: 0;
+    font: 14px Arial, Helvetica, sans-serif;
+    width: max-content;
+    height: max-content;
+}
+
+.draggable-item-container {
+    vertical-align: middle;
+    width: max-content;
+    height: max-content;
+}

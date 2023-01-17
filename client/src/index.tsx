@@ -20,9 +20,11 @@ import AuditTable from './components/AuditTable/AuditTable';
 import PSamplesPage from './pages/SamplesPages/PSamplesPage';
 import PCreateSamplePage from './pages/CreateSamplePages/PCreateSamplePage';
 
-import { Team } from './components/AuditTable/AuditTable';
-
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import PrintersPage from './pages/PrintersPage/PrintersPage';
+import { DeletedSamplesPage } from './pages/DeletedSamplesPage/DeletedSamplesPage';
+import { Team } from './constants';
+import { LabelEditorPage } from './pages/LabelEditorPage/LabelEditorPage';
 
 const store = configureStore({
     reducer: reducers,
@@ -35,16 +37,29 @@ const router = createBrowserRouter([
         element: <RootPage />,
     },
     {
+        path: "/printers",
+        element: <PrintersPage />,
+    },
+    {
+        path: "/editor",
+        element: <LabelEditorPage />,
+    },
+    {
         path: "/samples",
         element: <SamplesPage />,
     },
+
     {
         path: "/samples/create",
         element: <CreateSamplePage />,
     },
     {
+        path: "samples/deleted",
+        element: <DeletedSamplesPage team={Team.ARND} />,
+    },
+    {
         path: "/samples/audit/:id",
-        element: <AuditTable team={Team.ARD} />
+        element: <AuditTable team={Team.ARND} />
     },
     {
         path: "/psamples",
@@ -55,6 +70,10 @@ const router = createBrowserRouter([
         element: <PCreateSamplePage />,
     },
     {
+        path: "psamples/deleted",
+        element: <DeletedSamplesPage team={Team.PSCS} />,
+    },
+    {
         path: "/psamples/audit/:id",
         element: <AuditTable team={Team.PSCS} />
     }
@@ -63,19 +82,10 @@ const router = createBrowserRouter([
 const theme = createTheme({
     palette: {
         primary: {
-            main: 'rgba(0, 133, 124, 255)'
+            main: 'rgba(0, 133, 124, 1)'
         },
         secondary: {
-            main: 'rgba(255, 255, 255, 255)'
-        },
-        error: {
-            main: 'rgba(12, 35, 64, 255)'
-        },
-        warning: {
-            main: 'rgba(110, 206, 178, 255)'
-        },
-        info: {
-            main: 'rgba(247, 247, 247, 247)'
+            main: 'rgba(255, 255, 255, 1)'
         },
     },
 });

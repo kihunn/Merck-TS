@@ -1,6 +1,6 @@
 import NavBar from "../../components/NavBar/NavBar";
 
-const RootPage = () => {
+const PrintersPage = () => {
 
     return (
         <>
@@ -10,4 +10,4 @@ const RootPage = () => {
     
 } 
 
-export default RootPage
+export default PrintersPage;

@@ -2,6 +2,8 @@ import { AppBar, Typography, Button, Container, Grow, Box, Toolbar, IconButton, 
 import MenuIcon from "@mui/icons-material/Menu";
 import CreateIcon from '@mui/icons-material/Create';
 import PageviewIcon from '@mui/icons-material/Pageview';
+import TrashIcon from '@mui/icons-material/Delete';
+import FormatShapesIcon from '@mui/icons-material/FormatShapes';
 
 import msdlogo from '../../images/msdlogo.png'
 import { Link } from 'react-router-dom';
@@ -19,21 +21,34 @@ const NavBar: React.FC<React.PropsWithChildren> = ({ children }: React.PropsWith
     const Sidebar = () => {
         return (
             <Box
-                sx={{ width: 250 }}
+                sx={{ width: 300 }}
                 role="presentation"
                 onClick={toggleDrawer}
                 onKeyDown={toggleDrawer}
             >
                 <List>
                     <ListItem key={"home"} disablePadding>
-                        <ListItemButton style={{ textAlign: "center" }}>
+                        <ListItemButton>
                             <Link to="/" className="link-button">
                                 <ListItemIcon>
                                     <Home />
+                                    <Typography variant="h6" color="primary">
+                                        Home
+                                    </Typography>
                                 </ListItemIcon>
-                                <Typography variant="h6" align="center" color="primary" component="div">
-                                    Home
-                                </Typography>
+                            </Link>
+                        </ListItemButton>
+
+                    </ListItem>
+                    <ListItem key={"editor"} disablePadding>
+                        <ListItemButton style={{ textAlign: "center" }}>
+                            <Link to="/editor" className="link-button">
+                                <ListItemIcon>
+                                    <FormatShapesIcon />
+                                    <Typography variant="h6" align="center" color="primary" component="div">
+                                        Label Editor
+                                    </Typography>
+                                </ListItemIcon>
                             </Link>
                         </ListItemButton>
                     </ListItem>
@@ -42,7 +57,7 @@ const NavBar: React.FC<React.PropsWithChildren> = ({ children }: React.PropsWith
                 <Divider />
                 
                 <List>
-                    <ListItem key={"ar&d-header"}>
+                    <ListItem key={"arnd-header"}>
                         <Typography variant="h5" align="center" color="primary" component="div">
                             AR&D Team
                         </Typography>
@@ -52,10 +67,10 @@ const NavBar: React.FC<React.PropsWithChildren> = ({ children }: React.PropsWith
                             <Link to="/samples" className="link-button">
                                 <ListItemIcon>
                                     <PageviewIcon />
+                                    <Typography variant="h6" align="center" color="primary" component="div">
+                                        View Samples
+                                    </Typography>
                                 </ListItemIcon>
-                                <Typography variant="h6" align="center" color="primary" component="div">
-                                    View Samples
-                                </Typography>
                             </Link>
                         </ListItemButton>
                     </ListItem>
@@ -64,10 +79,22 @@ const NavBar: React.FC<React.PropsWithChildren> = ({ children }: React.PropsWith
                             <Link to="/samples/create" className="link-button">
                                 <ListItemIcon>
                                     <CreateIcon />
+                                    <Typography variant="h6" align="center" color="primary" component="div">
+                                        Create Sample
+                                    </Typography>
                                 </ListItemIcon>
-                                <Typography variant="h6" align="center" color="primary" component="div">
-                                    Create Sample
-                                </Typography>
+                            </Link>
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem key={"samples-deleted"} disablePadding>
+                        <ListItemButton>
+                            <Link to="/samples/deleted" className="link-button">
+                                <ListItemIcon>
+                                    <TrashIcon />
+                                    <Typography variant="h6" align="center" color="primary" component="div">
+                                        View Deleted Samples
+                                    </Typography>
+                                </ListItemIcon>
                             </Link>
                         </ListItemButton>
                     </ListItem>
@@ -86,10 +113,10 @@ const NavBar: React.FC<React.PropsWithChildren> = ({ children }: React.PropsWith
                             <Link to="/psamples" className="link-button">
                                 <ListItemIcon>
                                     <PageviewIcon />
+                                    <Typography variant="h6" align="center" color="primary" component="div">
+                                        View Samples
+                                    </Typography>
                                 </ListItemIcon>
-                                <Typography variant="h6" align="center" color="primary" component="div">
-                                    View Samples
-                                </Typography>
                             </Link>
                         </ListItemButton>
                     </ListItem>
@@ -98,14 +125,27 @@ const NavBar: React.FC<React.PropsWithChildren> = ({ children }: React.PropsWith
                             <Link to="/psamples/create" className="link-button">
                                 <ListItemIcon>
                                     <CreateIcon />
+                                    <Typography variant="h6" align="center" color="primary" component="div">
+                                        Create Sample
+                                    </Typography>
                                 </ListItemIcon>
-                                <Typography variant="h6" align="center" color="primary" component="div">
-                                    Create Sample
-                                </Typography>
+                            </Link>
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem key={"psamples-deleted"} disablePadding>
+                        <ListItemButton>
+                            <Link to="/psamples/deleted" className="link-button">
+                                <ListItemIcon>
+                                    <TrashIcon />
+                                    <Typography variant="h6" align="center" color="primary" component="div">
+                                        View Deleted Samples
+                                    </Typography>
+                                </ListItemIcon>
                             </Link>
                         </ListItemButton>
                     </ListItem>
                 </List>
+
             </Box>
         )
     }
@@ -114,7 +154,7 @@ const NavBar: React.FC<React.PropsWithChildren> = ({ children }: React.PropsWith
         <Container>
             <Box sx={{ flexGrow: 1 }}>
                 <AppBar position="static" color="inherit" style={{ padding: '10px', margin: '10px' }}>
-                    <Toolbar>
+                    <Toolbar className="nav-toolbar">
                         <React.Fragment key={"sidebar"}>
                             <IconButton
                                 size="large"
@@ -138,10 +178,10 @@ const NavBar: React.FC<React.PropsWithChildren> = ({ children }: React.PropsWith
                             Merck Label Dashboard
                         </Typography>
 
-                        <div className="msd-img-container">
-                            <Link to="/">
-                                <img src={msdlogo} alt="MSD Logo" height="60"/>
-                            </Link>
+                        <div className="msg-image-container">
+                        <Link to="/">
+                            <img src={msdlogo} alt="MSD Logo" height="60"/>
+                        </Link>
                         </div>
                     </Toolbar>
                 </AppBar>

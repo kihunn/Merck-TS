@@ -10,6 +10,7 @@ import SampleTable from "../../components/Samples/SampleTable";
 
 import * as api from '../../api/index';
 import { GeneralSample } from "../../api/types";
+import { PSamplesTableGridColDefs, Team } from "../../constants";
 
 const PSamplesPage = () => {
 
@@ -31,8 +32,18 @@ const PSamplesPage = () => {
         dispatch(getPrinters())
     }    
 
-    const onDelete = async () => {
-
+    const onDelete = async (selected: GeneralSample[]) => {
+        for (let i = selected.length - 1; i >= 0; i--) {
+            const sample = selected[i];
+            await api.createDeleted({
+                audit_id: sample.audit_id,
+                audit_number: sample.audit_number,
+                qr_code_key: sample.qr_code_key,
+                type: Team.PSCS,
+                date_deleted: new Date(Date.now()).toISOString().split('T')[0],
+            });
+        }
+        onRefresh();
     }
 
     return (
@@ -45,29 +56,7 @@ const PSamplesPage = () => {
                 onDelete={onDelete}
                 auditLink={(id: string) => `/psamples/audit/${id}`}
                 updateSample={api.updatePSample}
-                overrideGridColDefs={[
-                    { 
-                        field: 'sample_name', 
-                        headerName: 'Sample Name', 
-                        flex: 1,
-                        sortable: false,
-                        editable: true,
-                    },
-                    { 
-                        field: 'mk', 
-                        headerName: 'MK', 
-                        flex: 1,
-                        sortable: false,
-                        editable: true
-                    },
-                    { 
-                        field: 'eln_notebook_number',
-                        headerName: 'ELN Notebook Number', 
-                        flex: 1,
-                        sortable: false,
-                        editable: true
-                    },
-                ]}
+                gridColDefs={PSamplesTableGridColDefs}
             />
         </>
     )
