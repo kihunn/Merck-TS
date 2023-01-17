@@ -1,37 +1,33 @@
 import axios from 'axios'
-import { Printer } from './types'
+import { GeneralSample, PSample, Printer, Sample } from './types'
 
-const samplesURL = 'http://localhost:5000/samples'
+const baseURL = 'http://localhost:5000'
+
+const samplesURL = `${baseURL}/samples`
 
 export const fetchSamples = () => axios.get(samplesURL)
-export const createSample = (newSampleData: any) => {
-    return axios.post(samplesURL, newSampleData)
-}
-export const updateSample = (newSapleDate: any) => {
-    return axios.put(samplesURL, newSapleDate)
-}
+export const createSample = (newSampleData: any) => axios.post(samplesURL, newSampleData)
+export const updateSample = (newSapleDate: any) => axios.put(samplesURL, newSapleDate)
 
-const psamplesURL = 'http://localhost:5000/psamples'
+const psamplesURL = `${baseURL}/psamples`
 
 export const fetchPSamples = () => axios.get(psamplesURL)
-export const createPSample = (newSampleData: any) => {
-    return axios.post(psamplesURL, newSampleData)
-}
-export const updatePSample = (newSapleDate: any) => {
-    return axios.put(psamplesURL, newSapleDate)
-}
+export const createPSample = (newSampleData: any) => axios.post(psamplesURL, newSampleData)
+export const updatePSample = (newSapleDate: any) => axios.put(psamplesURL, newSapleDate)
 
-const qrURL = 'http://localhost:5000/qr'
+const qrURL = `${baseURL}/qr`
 
-export const createQRCodeKey = (sample: any) => {
-    return axios.post(`${qrURL}/key`, sample)
-}
-export const createLabel = (sample: any) => {
-    return axios.post(`${qrURL}/label`, sample)
-}
+export const createQRCodeKey = (sample: any) => axios.post(`${qrURL}/key`, sample)
+export const createLabel = (sample: any) => axios.post(`${qrURL}/label`, sample)
 
 export const fetchPrinters = () => axios.get(`${qrURL}/printers`)
+export const printLabels = (base64labels: string[], printer: Printer) => axios.post(`${qrURL}/print`, { base64labels, printer })
 
-export const printLabel = (base64label: string, printer: Printer) => {
-    return axios.post(`${qrURL}/print`, { base64label, printer })
-}
+const deletedURL = `${baseURL}/deleted`;
+
+export const fetchDeleted = () => axios.get(deletedURL);
+export const fetchFullDeleted = () => axios.get(`${deletedURL}/full`);
+export const fetchDeletedOfType = (type: string) => axios.get(`${deletedURL}`, { params: { type } });
+export const fetchDeletedByAuditID = (audit_id: string) => axios.get(`${deletedURL}`, { params: { audit_id } });
+export const fetchDeletedByQRCodeKey = (qr_code_key: string) => axios.get(`${deletedURL}`, { params: { qr_code_key } });
+export const createDeleted = (deleted: any) => axios.post(deletedURL, deleted);

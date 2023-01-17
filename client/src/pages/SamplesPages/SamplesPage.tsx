@@ -10,6 +10,7 @@ import SampleTable from "../../components/Samples/SampleTable";
 
 import * as api from '../../api/index';
 import { GeneralSample } from "../../api/types";
+import { SamplesTableGridColDefs, Team } from "../../constants";
 
 const SamplesPage = () => {
 
@@ -38,7 +39,18 @@ const SamplesPage = () => {
 
     // TODO: Set up api endpoint for deleting samples
     const onDelete = async (selected: GeneralSample[]) => {
-    
+        // @ts-ignore
+        for (let i = selected.length - 1; i >= 0; i--) {
+            const sample = selected[i];
+            await api.createDeleted({
+                audit_id: sample.audit_id,
+                audit_number: sample.audit_number,
+                qr_code_key: sample.qr_code_key,
+                type: Team.ARND,
+                date_deleted: new Date(Date.now()).toISOString().split('T')[0],
+            });
+        }
+        onRefresh();
     }
 
     return (
@@ -51,36 +63,7 @@ const SamplesPage = () => {
                 onDelete={onDelete}
                 updateSample={api.updateSample}
                 auditLink={(id: string) => `/samples/audit/${id}`}
-                overrideGridColDefs={[
-                    { 
-                        field: 'experiment_id', 
-                        headerName: 'Experiment ID', 
-                        flex: 1,
-                        sortable: false,
-                        editable: true,
-                    },
-                    { 
-                        field: 'storage_condition', 
-                        headerName: 'Storage Condition', 
-                        flex: 1,
-                        sortable: false,
-                        editable: true
-                    },
-                    { 
-                        field: 'contents',
-                        headerName: 'Contents', 
-                        flex: 1,
-                        sortable: false,
-                        editable: true
-                    },
-                    { 
-                        field: 'analyst', 
-                        headerName: 'Analyst', 
-                        flex: 1,
-                        sortable: false,
-                        editable: true
-                    },
-                ]}
+                gridColDefs={SamplesTableGridColDefs}
             />
         </>
     )

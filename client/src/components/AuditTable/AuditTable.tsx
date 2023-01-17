@@ -4,11 +4,8 @@ import { GeneralSample, Sample } from "../../api/types";
 import NavBar from "../NavBar/NavBar";
 import SampleTable from "../Samples/SampleTable";
 import { GridColDef } from "@mui/x-data-grid";
+import { PSamplesTableGridColDefs, SamplesTableGridColDefs, Team } from "../../constants";
 
-export enum Team {
-    ARD,
-    PSCS
-}
 
 interface AuditTableProps {
     team: Team
@@ -19,62 +16,11 @@ const AuditTable = ({ team }: AuditTableProps) => {
     var overrideGridColDefs: GridColDef[] = [];
     var samples: GeneralSample[] = useSelector((state: any) => {
         switch (team) {
-            case Team.ARD:
-                overrideGridColDefs = [
-                    { 
-                        field: 'experiment_id', 
-                        headerName: 'Experiment ID', 
-                        flex: 1,
-                        sortable: false,
-                        editable: true,
-                    },
-                    { 
-                        field: 'storage_condition', 
-                        headerName: 'Storage Condition', 
-                        flex: 1,
-                        sortable: false,
-                        editable: true
-                    },
-                    { 
-                        field: 'contents',
-                        headerName: 'Contents', 
-                        flex: 1,
-                        sortable: false,
-                        editable: true
-                    },
-                    { 
-                        field: 'analyst', 
-                        headerName: 'Analyst', 
-                        flex: 1,
-                        sortable: false,
-                        editable: true
-                    },
-                ]
+            case Team.ARND:
+                overrideGridColDefs = SamplesTableGridColDefs
                 return state.samples;
             case Team.PSCS:
-                overrideGridColDefs = [
-                    { 
-                        field: 'sample_name', 
-                        headerName: 'Sample Name', 
-                        flex: 1,
-                        sortable: false,
-                        editable: true,
-                    },
-                    { 
-                        field: 'mk', 
-                        headerName: 'MK', 
-                        flex: 1,
-                        sortable: false,
-                        editable: true
-                    },
-                    { 
-                        field: 'eln_notebook_number',
-                        headerName: 'ELN Notebook Number', 
-                        flex: 1,
-                        sortable: false,
-                        editable: true
-                    },
-                ]
+                overrideGridColDefs = PSamplesTableGridColDefs
                 return state.psamples;
             default:
                 return []
@@ -90,7 +36,7 @@ const AuditTable = ({ team }: AuditTableProps) => {
             selector={""} 
             isAuditTable={true}       
             overrideSamples={auditedSamples} 
-            overrideGridColDefs={overrideGridColDefs}
+            gridColDefs={overrideGridColDefs}
         />
     </>)
 
