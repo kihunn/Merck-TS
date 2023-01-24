@@ -24,7 +24,7 @@ export async function printLabels(base64labels: string[], printer: Printer) {
     const mediaName: string = printerAttributes["printer-attributes-tag"]["media-ready"];
     var [width, length] = RegExp(/(\d+)x(\d+)/).exec(mediaName)!.slice(1).map(Number);
     length = length == 0 ? 100 : length;
-    
+
     const images: Jimp[] = [];
     for (const base64label of base64labels) {
         images.push(await Jimp.read(Buffer.from(base64label, 'base64')));
@@ -43,5 +43,5 @@ export async function printLabels(base64labels: string[], printer: Printer) {
 
     const success = await brotherPrinter.print(buffer);
 
-    return success;
+    return success ?? false;
 }
