@@ -31,3 +31,7 @@ export const fetchDeletedOfType = (type: string) => axios.get(`${deletedURL}`, {
 export const fetchDeletedByAuditID = (audit_id: string) => axios.get(`${deletedURL}`, { params: { audit_id } });
 export const fetchDeletedByQRCodeKey = (qr_code_key: string) => axios.get(`${deletedURL}`, { params: { qr_code_key } });
 export const createDeleted = (deleted: any) => axios.post(deletedURL, deleted);
+
+const labelsURL = `${baseURL}/labels`;
+
+export const setLabelDesign = (information: any, type: string) => axios.post(labelsURL, { information, type });

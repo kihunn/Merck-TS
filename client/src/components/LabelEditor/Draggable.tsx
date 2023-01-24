@@ -27,7 +27,7 @@ const Draggable: React.FC<React.PropsWithChildren<DraggableProps>> = ({
     const isClicked = useRef<boolean>(false);
     const lastClickPosition = useRef<Position>({ x: 0, y: 0 });
 
-    useEffect(() => {
+    const generateListeners = () => {
         const target = draggableRef.current;
 
         if (!target) throw new Error("Element with given id doesn't exist");
@@ -100,7 +100,11 @@ const Draggable: React.FC<React.PropsWithChildren<DraggableProps>> = ({
         }
 
         return cleanup;
-    }, []);
+    }
+
+    useEffect(() => {
+        return generateListeners();
+    }, [disabled]);
 
     return (
         <div className="draggable-item-container" ref={draggableRef}>
