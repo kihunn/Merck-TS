@@ -13,6 +13,7 @@ export type EditableTextSelectEvent<T = Element> = (event: React.MouseEvent<T, M
 interface EditableTextProps {
     text: TextOptions;
     id?: string;
+    selected?: boolean;
     onSelect?: EditableTextSelectEvent;
     onEditStart?: (event: React.MouseEvent) => void;
     onEdit?: (event: React.ChangeEvent<HTMLInputElement>, text: string) => void;
@@ -26,14 +27,10 @@ const EditableText: React.FC<React.PropsWithChildren<EditableTextProps>> = ({ ch
     const paragraphRef = React.useRef<HTMLParagraphElement>(null);
 
     const [text, setText] = useState<string>(props.text.defaultValue);
-    const [selected, setSelected] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
 
     const onClick = (event: React.MouseEvent) => {
         props.onSelect?.(event, paragraphRef);
-        setTimeout(() => {
-            setSelected(!selected);
-        }, 150)
     }
 
     const onDoubleClick = (event: React.MouseEvent) => {
@@ -41,26 +38,35 @@ const EditableText: React.FC<React.PropsWithChildren<EditableTextProps>> = ({ ch
         setIsEditing(true);
     }
 
-    const InputElement: React.FC = () => {
-        const onKeyPress = (event: KeyboardEvent) => {
-            if (event.key === 'Enter') {
-                props.onEditEnd?.(event);
-                setIsEditing(false);
-            }
+    const onKeyDownInput = (event: KeyboardEvent) => {
+        console.log(event);
+        if (event.key === 'Enter') {
+            props.onEditEnd?.(event);
+            setIsEditing(false);
+        }
+    }
+
+    const onKeyDownParagraph = (event: KeyboardEvent) => {
+        console.log(event);
+        if (event.key === 'Enter') {
+            props.onEditStart?.(event as unknown as React.MouseEvent);
+            setIsEditing(true);
+        }
+    }
+
+    useEffect(() => {
+        if (inputRef.current) {
+            inputRef.current.addEventListener('keydown', onKeyDownInput);
         }
 
-        useEffect(() => {
+        return () => {
             if (inputRef.current) {
-                inputRef.current.focus();
-                inputRef.current.addEventListener('keypress', onKeyPress);
+                inputRef.current.removeEventListener('keydown', onKeyDownInput);
             }
+        }
+    }, []);
 
-            return () => {
-                if (inputRef.current) {
-                    inputRef.current.removeEventListener('keypress', onKeyPress);
-                }
-            }
-        }, []);
+    const InputElement: React.FC = () => {
 
         return (
             <input
@@ -78,7 +84,6 @@ const EditableText: React.FC<React.PropsWithChildren<EditableTextProps>> = ({ ch
                 onBlur={(event) => {
                     props.onEditEnd?.(event);
                     setIsEditing(false)
-                    setSelected(false);
                 }}
                 ref={inputRef}
                 id={props.id}
@@ -87,10 +92,6 @@ const EditableText: React.FC<React.PropsWithChildren<EditableTextProps>> = ({ ch
         )
     }
 
-    useEffect(() => {
-        console.log(props.text.size);
-    }, [props.text.size]);
-
     const ParagraphElement = () => {
         return (
             <p
@@ -98,9 +99,9 @@ const EditableText: React.FC<React.PropsWithChildren<EditableTextProps>> = ({ ch
                 style={{
                     fontSize: `${props.text.size}px`,
                     fontWeight: props.text.bold ? 'bold' : 'normal',
-                    ...(selected ? { border: '1px solid black' } : { border: 'none' })
+                    ...(props.selected ? { outline: '1px solid black' } : { outline: 'none' })
                 }}
-                onClick={onClick}
+                onMouseDown={onClick}
                 onDoubleClick={onDoubleClick}
                 ref={paragraphRef}
                 id={props.id}

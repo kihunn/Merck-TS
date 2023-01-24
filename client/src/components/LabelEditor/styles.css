@@ -1,6 +1,6 @@
 .label-editor {
     --editor-height: 60vh;
-    --editor-width: 65vw;
+    --editor-width: 75vw;
     width: var(--editor-width);
     display: flex;
     flex-direction: row;
@@ -16,10 +16,11 @@
     height: var(--editor-height);
     margin-right: 10px;
     align-items: center;
+    border: 2px solid rgba(0, 133, 124, 1);
 }
 
 .label-editor-container {
-    flex: 0 0 0;
+    flex: 1 1 0;
     flex-grow: 2;
     flex-direction: row;
     flex-wrap: wrap;
