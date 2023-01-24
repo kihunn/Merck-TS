@@ -43,6 +43,12 @@ model deleted {
     date_deleted String
 }
 
+model labels {
+    id Int @id
+    data Json
+    team String
+}
+
 generator client {
     provider = "prisma-client-js"
 }

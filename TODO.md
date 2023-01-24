@@ -39,6 +39,9 @@
 - [ ] Work on generalizing the form component
 - [ ] Work on the nav bar
 - [ ] Get the printer working
+- [ ] MAKE README BETTER!
+- [ ] COMMENT ALL CODE :(((((!
+- [ ] LEARN DOCKER!
 
 # Server
 - [x] Generate qr code keys using a seeded or consistent hash algorithm
