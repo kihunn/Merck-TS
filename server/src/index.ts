@@ -4,8 +4,8 @@ import cors from 'cors'
 
 import prisma from './db'
 
-import sampleRoutes from './routes/samples'
-import psampleRoutes from './routes/psamples'
+import sampleRoutes from './routes/arnd_samples'
+import psampleRoutes from './routes/pscs_samples'
 import qrRoutes from './routes/qr'
 import deletedRoutes from './routes/deleted'
 import labelsRoutes from './routes/labels'
@@ -18,8 +18,8 @@ import labelsRoutes from './routes/labels'
     app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
     app.use(cors());
 
-    app.use('/samples', sampleRoutes)
-    app.use('/psamples', psampleRoutes)
+    app.use('/arnd_samples', sampleRoutes)
+    app.use('/pscs_samples', psampleRoutes)
     app.use('/qr', qrRoutes);
     app.use('/deleted', deletedRoutes);
     app.use('/labels', labelsRoutes);

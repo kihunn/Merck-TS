@@ -1,10 +1,10 @@
 import express from 'express'
 import {
-    getSamples,
-    getSample,
-    createSample,
-    updateSample
-} from '../controllers/samples'
+    getARNDSamples,
+    getARNDSample,
+    createARNDSample,
+    updateARNDSample
+} from '../controllers/arnd_samples'
 
 const router = express.Router()
 
@@ -13,20 +13,20 @@ const router = express.Router()
  * Returns all samples in the database
  * @method GET
  */
-router.get('/', getSamples)
+router.get('/', getARNDSamples)
 
 /**
  * Create a new sample that is added to the database 
  * 
  */
-router.post('/', createSample)
+router.post('/', createARNDSample)
 
 /**
  * Updates a given sample
  */
-router.put('/', updateSample)
+router.put('/', updateARNDSample)
 
 // get /samples/:qr_code_key
-router.get('/:qr_code_key', getSample)
+router.get('/:qr_code_key', getARNDSample)
 
 export default router

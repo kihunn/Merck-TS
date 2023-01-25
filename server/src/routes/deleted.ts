@@ -1,24 +1,15 @@
 import express from "express";
-import { 
-    createDeleted, 
-    getDeleted,
-    getFullDeleted,
-    getDeletedByAuditID, 
-    getDeletedByQRCodeKey, 
-    getDeletedOfType 
+import {
+    createDeleted,
+    getDeletedSamples,
+    getDeletedSamplesByTeam
 } from "../controllers/deleted";
 
 const router = express.Router()
 
-router.get('/', getDeleted);
+router.get('/', getDeletedSamples);
 
-router.get('/full', getFullDeleted)
-
-router.get('/:type', getDeletedOfType);
-
-router.get('/:audit_id', getDeletedByAuditID);
-
-router.get('/:qr_code_key', getDeletedByQRCodeKey);
+router.get('/:team', getDeletedSamplesByTeam);
 
 router.post('/', createDeleted);
 

@@ -4,7 +4,7 @@ import { createQRCodeKey, createQRCodeLabel, getPrinters, printQRCodeLabel } fro
 const router = express.Router();
 
 router.post('/key', createQRCodeKey)
-router.post('/label', createQRCodeLabel)
+router.post('/label/:team', createQRCodeLabel)
 router.post('/print', printQRCodeLabel)
 router.get('/printers', getPrinters)
 

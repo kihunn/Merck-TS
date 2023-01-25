@@ -1,10 +1,10 @@
 import express from 'express'
 import {
-    getPSamples,
-    getPSample,
-    createPSample,
-    updatePSample
-} from '../controllers/psamples'
+    getPSCSSamples,
+    getPSCSSample,
+    createPSCSSample,
+    updatePSCSSample
+} from '../controllers/pscs_samples'
 
 const router = express.Router()
 
@@ -12,20 +12,20 @@ const router = express.Router()
  * Returns all psamples in the database
  * @method GET
  */
-router.get('/', getPSamples)
+router.get('/', getPSCSSamples)
 
 /**
  * Create a new psample that is added to the database 
  * 
  */
-router.post('/', createPSample)
+router.post('/', createPSCSSample)
 
 /**
  * Updates a given psample
  */
-router.put('/', updatePSample)
+router.put('/', updatePSCSSample)
 
 // get /psamples/:qr_code_key
-router.get('/:qr_code_key', getPSample)
+router.get('/:qr_code_key', getPSCSSample)
 
 export default router

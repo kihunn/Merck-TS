@@ -25,22 +25,8 @@ export const DeletedTable: React.FC<DeletedTableProps> = ({ team }: DeletedTable
 
     useEffect(() => {
         const fetchSamples = async () => {
-            const response = await api.fetchFullDeleted();
-            const { data } = await api.fetchDeletedOfType(team);
-            console.log(team, response.data, data);
-            const qr_code_keys = [];
-            for (let i = 0; i < data.length; i++) {
-                if (data[i].type == team) {
-                    qr_code_keys.push(data[i].qr_code_key);
-                }
-            }
-            const samples: GeneralSample[] = [];
-            for (let i = 0; i < response.data.length; i++) {
-                if (qr_code_keys.includes(response.data[i].qr_code_key)) {
-                    samples.push(response.data[i]);
-                }
-            }
-            setDeletedSamples(samples);
+            const { data } = await api.fetchDeletedByTeam(team);
+            setDeletedSamples(data);
         };
         fetchSamples();
     }, []);

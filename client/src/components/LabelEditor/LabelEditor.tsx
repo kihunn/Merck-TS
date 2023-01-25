@@ -1,229 +1,529 @@
-import { Button, Checkbox, FormControl, FormControlLabel, FormGroup, InputAdornment, InputLabel, MenuItem, Paper, Select, TextField } from "@mui/material";
+import React, { useEffect, useRef, useState } from "react";
+import { Button, MenuItem, Select, TextField } from "@mui/material";
+import LabelText from "./LabelText";
 
-import Draggable, { Position } from "./Draggable";
+import { v4 as uuidv4 } from 'uuid';
 
-import "./styles.css";
-import { useEffect, useRef, useState } from "react";
-import EditableText, { EditableTextSelectEvent } from "./EditableText";
-import React from "react";
-
-import * as api from "../../api/index";
+import "./LabelEditor.css"
+import qr_image from "../../images/basic_qr_code.png";
 import { Team } from "../../constants";
-import 'tui-image-editor/dist/tui-image-editor.css';
 
-const AVAILABLE_FONT_SIZES: { [key: string]: number } = {
-    BASIC_16: 16,
-    BASIC_24: 24,
-    BASIC_32: 32,
-} as const;
+interface Position {
+    x: number,
+    y: number,
+}
 
-type TextBlockInformation = {
-    textSize: number,
+interface LabelEntityInfo {
     text: string,
-    bold: boolean;
+    size?: number, // Only used for the qr code, size in px
+    position: Position,
+    fontColor: string,
+    fontSizePX: number,
 }
 
-type TextBlockInformationStore = {
-    [key: string | number]: TextBlockInformation
+export interface LabelEntityInfoStore {
+    [key: string]: LabelEntityInfo
 }
 
-
-const DEFAULT_TEXT_BLOCK_INFO: TextBlockInformation = {
-    textSize: 16,
-    text: "double click to edit",
-    bold: false
+interface LabelEditorProps {
+    /**
+     * The size of the label in millimeters
+     */
+    labelSize: { width: string | number, length: string | number },
+    editorSize?: { width: string | number, height: string | number },
+    onEntityInfoChange?: (textInfo: LabelEntityInfoStore) => void,
+    onSave?: (entityInfo: LabelEntityInfoStore, team: Team) => void,
+    footerComponents?: React.ReactNode,
+    toolbarComponents?: React.ReactNode,
 }
 
-export const LabelEditor = () => {
+const LabelEditor: React.FC<React.PropsWithChildren<LabelEditorProps>> = ({
+    labelSize,
+    toolbarComponents,
+    footerComponents,
+    editorSize = { width: 'auto', height: 'auto' },
+    onEntityInfoChange = () => {},
+    onSave = () => {},
+}) => {
+    const editorRef = useRef<HTMLDivElement | null>(null);
+    const lastMousePositionRef = useRef<{ x: number, y: number }>({ x: 0, y: 0 });
 
-    const [textBlocks, setTextBlocks] = useState(0);
-    const [selectedId, setSelectedId] = useState<string | null>(null);
-    const [dragMode, setDragMode] = useState<boolean>(false);
-    const [textBlockInfos, setTextBlockInfos] = useState<TextBlockInformationStore>({});
-    const [textBlockPositions, setTextBlockPositions] = useState<Record<number, Position>>({});
+    const [entityIDs, setEntityIDs] = useState<string[]>([]);
+    const [entities, setEntities] = useState<LabelEntityInfoStore>({});
+    const [qrCodeID, setQRCodeID] = useState<string | null>(null);
+    const [selectedTeam, setSelectedTeam] = useState<Team>(Team.ARND);
 
-    const [labelSize, setLabelSize] = useState<[number, number]>([2.4, 3.9]);
-    const [labelSizePX, setLabelSizePX] = useState<[number, number]>([0, 0]);
+    const [selectedEntityID, setSelectedEntityID] = useState<string | null>(null);
+
+    const [isSelectedEntityHeld, setIsSelectedEntityHeld] = useState<boolean>(false);
+
+    // Radius used when searching for nearby text in px
+    const [alignmentSearchRadius, setAlignmentSearchRadius] = useState<number>(10);
+
+    // Text used when adding new text
+    const [newText, setNewText] = useState<string>("New Text");
+
+    // Size used when adding new text
+    const [newFontSize, setNewFontSize] = useState<number>(16);
+
+    // Color used when adding new text
+    const [newFontColor, setNewFontColor] = useState<string>("#000000");
+
+    const loadSavedLayout = () => {
+        const storedText: LabelEntityInfo[] = JSON.parse(localStorage.getItem(selectedTeam) ?? "[]");
+        const restoredTexts: LabelEntityInfoStore = {};
+        var newQRCodeID = null;
+        for (const text of storedText) {
+            const { id, text: textInfo } = generateText(text);
+            if (text.size !== undefined) {
+                newQRCodeID = id;
+            }
+            restoredTexts[id] = textInfo;
+        }
+        setQRCodeID(newQRCodeID)
+        setSelectedEntityID(null);
+        setEntityIDs(Object.keys(restoredTexts));
+        setEntities(restoredTexts);
+        setNewFontColor(localStorage.getItem("newFontColor") ?? "#000000");
+        setNewFontSize(parseInt(localStorage.getItem("newFontSize") ?? "16"));
+        setNewText(localStorage.getItem("newText") ?? "New Text");
+    }
 
     useEffect(() => {
-        const PPI = 96;
-        setLabelSizePX([labelSize[0] * PPI, labelSize[1] * PPI]);
-    }, [labelSize]);
+        if (editorRef.current) {
+            lastMousePositionRef.current = { x: editorRef.current.offsetLeft, y: editorRef.current.offsetTop };
+            loadSavedLayout();
+        }
+    }, [loadSavedLayout]);
 
-    const selectedTextBlockRef = useRef<HTMLParagraphElement | null>(null);
+    useEffect(() => {
+        onEntityInfoChange(entities);
+    }, [entities]);
 
-    const setTextBlockFontSize = (value: number) => {
-        setTextBlockInfos({
-            ...textBlockInfos,
-            [selectedId!]: { 
-                ...textBlockInfos[selectedId!], 
-                textSize: value 
+    useEffect(() => {
+        loadSavedLayout();
+    }, [selectedTeam, loadSavedLayout])
+
+    const updateLastMousePosition = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        lastMousePositionRef.current = { x: event.clientX, y: event.clientY };
+    }
+
+    const findNearbyText = (currentTextPosition: Position, axis: 'x' | 'y', exclude?: string[]) => {
+        for (const textID of entityIDs) {
+            if (exclude && exclude.includes(textID)) 
+                continue;
+            const text = entities[textID];
+
+            const diff = Math.abs(text.position[axis] - currentTextPosition[axis]);
+
+            if (diff <= alignmentSearchRadius) {
+                return text.position[axis];
+            }
+        }
+        return null;
+    }
+
+    const generateText = (info?: LabelEntityInfo) => {
+        const id = uuidv4();
+        const text = { 
+            ...{
+                text: newText,
+                position: { x: 0, y: 0 },
+                fontColor: newFontColor,
+                fontSizePX: newFontSize,
+            },
+            ...info,
+        };
+        return {
+            id,
+            text
+        }
+    }
+
+    const addTextEntity = (info?: LabelEntityInfo) => {
+        const { id, text } = generateText(info);
+
+        setEntityIDs([...entityIDs, id]);
+        setEntities({
+            ...entities,
+            [id]: text
+        });
+    }
+
+    const addQRCodeEntity = () => {
+        if (qrCodeID === null) {
+            const { id, text } = generateText();
+            text.text = "";
+            text.fontSizePX = 0;
+            text.size = 50;
+
+            setQRCodeID(id);
+            setEntityIDs([...entityIDs, id]);
+            setEntities({
+                ...entities,
+                [id]: text
+            });
+        }
+    }
+
+    const onTextSizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newSize = parseInt(event.currentTarget.value);
+
+        if (selectedEntityID === null) {
+            localStorage.setItem("newFontSize", newSize.toString());
+            return setNewFontSize(newSize);
+        }
+
+        setEntities({
+            ...entities,
+            [selectedEntityID as string]: {
+                ...entities[selectedEntityID as string],
+                fontSizePX: newSize,
             }
         })
     }
 
-    const onDragEnd = (event: MouseEvent, pos: React.RefObject<Position>) => {
-        // @ts-ignore
-        const id = event.target.id as string;
-        setTextBlockPositions((previous) => {
-            return {
-                ...previous,
-                [id]: pos.current!
-            }
-        });
-    }
+    const onTextColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newColor = event.currentTarget.value;
 
-    const onTextBlockSelect: EditableTextSelectEvent = (event, textRef) => {
-        // @ts-ignore
-        const id = event.target.id as string;
-        setSelectedId(id);
-        selectedTextBlockRef.current = textRef.current;
-    }
+        if (selectedEntityID === null) {
+            localStorage.setItem("newFontColor", newColor);
+            return setNewFontColor(newColor);
+        }
 
-    const onBoldChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setTextBlockInfos({
-            ...textBlockInfos,
-            [selectedId!]: { 
-                ...textBlockInfos[selectedId!], 
-                bold: event.target.checked
+        setEntities({
+            ...entities,
+            [selectedEntityID as string]: {
+                ...entities[selectedEntityID as string],
+                fontColor: newColor,
             }
         })
     }
 
-    const saveLabel = async () => {
-        const joined = Object.entries(textBlockPositions).map(([key, value]) => {
-            return {
-                ...textBlockInfos[key],
-                position: value
+    const onTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const updatedText = event.currentTarget.value;
+
+        if (selectedEntityID === null) {
+            localStorage.setItem("newText", updatedText);
+            return setNewText(updatedText);
+        }
+
+        setEntities({
+            ...entities,
+            [selectedEntityID as string]: {
+                ...entities[selectedEntityID as string],
+                text: updatedText,
             }
         });
-
-        await api.setLabelDesign(joined, Team.ARND);
     }
 
-    const onEditEnd = (event: any) => {
-        // @ts-ignore
-        const id = event.target.id as string;
-        setTextBlockInfos({
-            ...textBlockInfos,
+    const onTextClickDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        event.stopPropagation();
+        if (isSelectedEntityHeld) 
+            return;
+
+        if (selectedEntityID !== null) {
+            const selectedText = document.getElementById(selectedEntityID);
+            if (selectedText !== null)
+                selectedText.classList.remove("label-text-selected")
+        }
+
+        event.currentTarget.classList.add("label-text-selected");
+        const textID = event.currentTarget.id;
+
+        updateLastMousePosition(event);
+        setIsSelectedEntityHeld(true);
+        setSelectedEntityID(textID);
+    }
+
+    const onTextClickUp = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        event.stopPropagation();
+        updateLastMousePosition(event);
+        setIsSelectedEntityHeld(false);
+    }
+
+    const onTextDrag = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        event.stopPropagation();
+
+        if (!isSelectedEntityHeld)
+            return;
+
+        const id = selectedEntityID as string;
+        const text = document.getElementById(id);
+        if (text === null)
+            return;
+
+        const editor = editorRef.current;
+        if (editor === null)
+            return;
+
+
+        const dx = event.clientX - lastMousePositionRef.current.x;
+        const dy = event.clientY - lastMousePositionRef.current.y;
+
+        var x = entities[id].position.x as number + dx;
+        var y = entities[id].position.y as number + dy;
+
+        if (event.shiftKey) {
+            var nearbyTextX = findNearbyText({ x, y }, 'x', [id]); 
+            var nearbyTextY = findNearbyText({ x, y }, 'y', [id]); 
+
+            if (nearbyTextX !== null) {
+                x = nearbyTextX;
+            }
+
+            if (nearbyTextY !== null) {
+                y = nearbyTextY;
+            }
+        } 
+
+        const editorRect = editor.getBoundingClientRect();
+
+        // only update the position if the text will be within the editor
+        if (x < 0 || x + text.offsetWidth > editorRect.width || y < 0 || y + text.offsetHeight > editorRect.height)
+            return;
+
+        setEntities({
+            ...entities,
             [id]: {
-                ...textBlockInfos[id],
-                text: event.target.value
+                ...entities[id],
+                position: { x, y },
             }
         })
+
+        updateLastMousePosition(event);
     }
 
-    useEffect(() => {
-        if (textBlocks === 0) return;
-        setTextBlockInfos((previous) => {
-            return {
-                ...previous,
-                [textBlocks-1]: { ...DEFAULT_TEXT_BLOCK_INFO }
+    const onDeleteClick = () => {
+        if (selectedEntityID === null)
+            return; 
+
+        const newTextIDs = entityIDs.filter(id => id !== selectedEntityID);
+
+        if (selectedEntityID === qrCodeID)
+            setQRCodeID(null);
+
+        setSelectedEntityID(null);
+        setEntityIDs(newTextIDs);
+        delete entities[selectedEntityID];
+        setEntities({ ...entities });
+    }
+
+    const onSaveClick = () => {
+        const labelTexts = Object.values(entities);
+        localStorage.setItem(selectedTeam, JSON.stringify(labelTexts));
+        onSave(entities, selectedTeam);
+    }
+
+    const onEditorClick = () => {
+        if (selectedEntityID !== null) {
+            const selectedText = document.getElementById(selectedEntityID);
+            if (selectedText !== null)
+                selectedText.classList.remove("label-text-selected")
+        }
+        setIsSelectedEntityHeld(false);
+        setSelectedEntityID(null);
+    }
+
+    const onResetPositionClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        setEntities({
+            ...entities,
+            [selectedEntityID as string]: {
+                ...entities[selectedEntityID as string],
+                position: {
+                    x: 0,
+                    y: 0,
+                }
             }
-        })
-        setTextBlockPositions((previous) => {
-            return {
-                ...previous,
-                [textBlocks-1]: { x: 0, y: 0 }
+        });
+    }
+
+    const onQRCodeSizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newQRCodeSize = event.currentTarget.valueAsNumber;
+        if (isNaN(newQRCodeSize))
+            return;
+
+        setEntities({
+            ...entities,
+            [qrCodeID as string]: {
+                ...entities[qrCodeID as string],
+                size: newQRCodeSize,
             }
-        })
-    }, [textBlocks]);
+        });
+    }
 
     return (
-        <Paper className="label-editor">
-            <Paper className="label-editor-controller">
-                <Button onClick={() => setTextBlocks(textBlocks + 1)}>Add Text</Button>
-                <FormControl sx={{ width: '30%', transform: 'scale(0.9)' }}>
-                    <InputLabel>Font Size</InputLabel>
-                    <Select
-                        disabled={selectedId === null}
-                        value={textBlockInfos[selectedId!]?.textSize ?? DEFAULT_TEXT_BLOCK_INFO.textSize}
-                        label="Font Size"
-                        onChange={(event) => {
-                                // @ts-ignore
-                                setTextBlockFontSize(event.target.value as number)
-                            }
-                        }
-                    >
-                        {
-                            Object.values(AVAILABLE_FONT_SIZES).map((key) => {
-                                return (
-                                    <MenuItem key={key} value={key}>
-                                        {key}
-                                    </MenuItem>
-                                )
-                            })
-                        }
-                    </Select>
-                </FormControl>
-                <Button onClick={() => setSelectedId(null)}>
-                    Deselect 
-                </Button>
-                <FormGroup>
-                    <FormControlLabel disabled={selectedId === null} control={<Checkbox value={selectedId === null ? false : textBlockInfos[selectedId!].bold} onChange={onBoldChange}/>} label="Bold"/>
-                    <FormControlLabel control={<Checkbox value={dragMode} onChange={(event) => setDragMode(!dragMode)} />} label="Drag Mode"/>
-                </FormGroup>
-                <TextField
-                    type='number'
-                    value={labelSize[1]}
-                    onChange={(event) => {
-                        var value = event.target.value;
-                        // @ts-ignore
-                        setLabelSize([labelSize[0], value])
-                    }}
-                    InputProps={{
-                        endAdornment: <InputAdornment position="end">in</InputAdornment>,
-                    }}
-                />
-                <TextField
-                    type='number'
-                    value={labelSize[0]}
-                    onChange={(event) => {
-                        const value = event.target.value;
-                        // @ts-ignore
-                        setLabelSize([value, labelSize[1]])
-                    }}
-                    InputProps={{
-                        endAdornment: <InputAdornment position="end">in</InputAdornment>,
-                    }}
-                />
-                <Button onClick={saveLabel}>Save</Button>
-            </Paper>
-            <Paper 
-                className="label-editor-container"
-            >
-                <Paper 
-                    className="label-editor-label-container" 
-                    sx={{ 
-                        width: `${labelSizePX[1]}px`, height: `${labelSizePX[0]}px` 
-                    }}   
+        <div 
+            className="label-editor-container"
+            style={{
+                width: `${editorSize.width}${typeof editorSize.width === "number" ? "px" : ""}`,
+                height: `${editorSize.height}${typeof editorSize.height === "number" ? "px" : ""}`,
+            }}
+        >
+            <div className="label-editor-toolbar">
+                <Button 
+                    onClick={() => addTextEntity()}
                 >
+                    Add Text
+                </Button>
+
+                <Button
+                    disabled={qrCodeID !== null}
+                    onClick={() => addQRCodeEntity()}
+                >
+                    Add QR Code
+                </Button>
+
+                <Button
+                    disabled={selectedEntityID === null}
+                    onClick={onDeleteClick}
+                >
+                    Delete Text
+                </Button>
+
+                <Button
+                    disabled={selectedEntityID === null}
+                    onClick={onResetPositionClick}
+                >
+                    Reset Position
+                </Button>
+
+                <input 
+                    type="number" 
+                    onChange={onTextSizeChange} 
+                    disabled={selectedEntityID !== null && selectedEntityID === qrCodeID}
+                    value={
+                        selectedEntityID !== null ? entities[selectedEntityID].fontSizePX : newFontSize
+                    } 
+                />
+
+                <input
+                    type="color"
+                    onChange={onTextColorChange}
+                    disabled={selectedEntityID !== null && selectedEntityID === qrCodeID}
+                    value={
+                        selectedEntityID !== null ? entities[selectedEntityID].fontColor : newFontColor
+                    }
+                />
+
+                {toolbarComponents}
+
+                <Select
+                    onChange={(event) => setSelectedTeam(event.target.value as Team)}
+                    value={selectedTeam}
+                >
+                    <MenuItem value={Team.ARND}>ARND</MenuItem>
+                    <MenuItem value={Team.PSCS}>PSCS</MenuItem>
+                </Select>
+
+                <Button
+                    onClick={onSaveClick}
+                >
+                    Save
+                </Button>
+            </div>
+
+            <div 
+                className="label-editor" 
+                onMouseUp={onEditorClick}
+                onMouseLeave={onTextClickUp}
+                ref={editorRef}
+                style={{
+                    width: `${labelSize.length}${typeof labelSize.length === "number" ? "mm" : ""}`,
+                    height: `${labelSize.width}${typeof labelSize.width === "number" ? "mm" : ""}`,
+                }}
+            >
                 {
-                    Array.from(Array(textBlocks).keys()).map((i) => {
-                        const selected = selectedId === i.toString();
+                    entityIDs.map((textID) => {
+                        const textInfo = entities[textID];
                         return (
-                            <Draggable 
-                                disabled={!dragMode}
-                                onDragEnd={(event, pos) => onDragEnd(event, pos)} 
-                                key={`${i}`}
+                            <LabelText
+                                key={textID}
+                                id={textID}
+                                position={textInfo.position}
+                                textColor={textInfo.fontColor}
+                                textSizePX={textInfo.fontSizePX}
+                                onMouseDown={onTextClickDown}
+                                onMouseUp={onTextClickUp}
+                                onMouseMove={onTextDrag}
                             >
-                                <EditableText 
-                                    text={{
-                                        defaultValue: textBlockInfos[i]?.text ?? DEFAULT_TEXT_BLOCK_INFO.text,
-                                        size: textBlockInfos[i]?.textSize ?? DEFAULT_TEXT_BLOCK_INFO.textSize,
-                                        bold: textBlockInfos[i]?.bold ?? DEFAULT_TEXT_BLOCK_INFO.bold
-                                    }}
-                                    selected={selected}
-                                    onSelect={(event, ref) => onTextBlockSelect(event, ref)}
-                                    onEditEnd={(event) => onEditEnd(event)}
-                                    id={`${i}`}
-                                />
-                            </Draggable>
-                        )
+                                {textInfo.text}
+                            </LabelText>
+                        );
                     })
                 }
-                </Paper>
-            </Paper>
-        </Paper>
-    )
+                {
+                    qrCodeID !== null 
+                    ? <div 
+                        id={qrCodeID}
+                        className="label-qr-code-container"
+                        style={{
+                            position: "absolute",
+                            top: `${entities[qrCodeID].position.y}px`,
+                            left: `${entities[qrCodeID].position.x}px`,
+                            width: `${entities[qrCodeID].size}px`,
+                            height: `${entities[qrCodeID].size}px`,
+                            zIndex: 0
+                        }}
+                        onMouseDown={onTextClickDown}
+                        onMouseUp={onTextClickUp}
+                        onMouseMove={onTextDrag}
+                    >
+                        <img 
+                            src={qr_image} 
+                            style={{
+                                userSelect: "none",
+                                width: "100%",
+                                height: "100%",  
+                                zIndex: 0
+                            }}
+                            draggable={false}
+                        ></img>
+                    </div>
+                    : null
+                }
+            </div>
+
+            <div className="label-editor-text-input-container">
+                <input
+                    className="label-editor-text-input"
+                    type="text"
+                    onChange={onTextChange}
+                    disabled={selectedEntityID !== null && selectedEntityID === qrCodeID}
+                    value={
+                        selectedEntityID !== null ? entities[selectedEntityID].text : newText
+                    }
+                />
+                <p>
+                    {selectedEntityID !== null 
+                        ? `(${entities[selectedEntityID].position.x}, ${entities[selectedEntityID].position.y})`
+                        : `(0, 0)`
+                    }
+                </p>
+                {
+                    selectedEntityID !== null && selectedEntityID == qrCodeID
+                    ? <label htmlFor="qr-code-size">
+                        QR Code Size
+                        <input
+                            type="number"
+                            name="qr-code-size"
+                            value={entities[qrCodeID].size}
+                            onChange={onQRCodeSizeChange}
+                            style={{
+                                width: '50px'
+                            }}
+                        />
+                    </label>
+                    : null
+                }
+            </div>
+
+            <div className="label-editor-footer">
+                {footerComponents}
+            </div>
+            
+        </div>
+    );
 }
+
+export default LabelEditor;

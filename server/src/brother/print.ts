@@ -1,5 +1,5 @@
 import Jimp from 'jimp';
-import prisma, { Printer } from '../db';
+import prisma from '../db';
 import { BrotherQLPrinter } from './printer';
 import { BrotherQLRaster, BrotherQLRasterImages } from './raster';
 
@@ -14,7 +14,7 @@ export function formatPrinterURL(printer: Printer) {
 export async function printLabels(base64labels: string[], printer: Printer) {
     const brotherPrinter = new BrotherQLPrinter(formatPrinterURL(printer));
     const printerAttributes = await brotherPrinter.getAttributes();
-    
+
     // Printer took too long to respond or we couldnt connect
     if (printerAttributes === undefined) {
         return false;
@@ -29,7 +29,7 @@ export async function printLabels(base64labels: string[], printer: Printer) {
     for (const base64label of base64labels) {
         images.push(await Jimp.read(Buffer.from(base64label, 'base64')));
     }
-    
+
     const raster = new BrotherQLRaster({
         media: {
             width,

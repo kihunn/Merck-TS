@@ -1,42 +1,11 @@
 import { PrismaClient } from '@prisma/client'
 const prisma: PrismaClient = new PrismaClient()
 
-export interface GeneralSample {
-    qr_code_key: string,
-    audit_id: string,
-    audit_number: number,
-    date_entered: string,
-    date_modified: string,
-    expiration_date: string,
-}
-
-export interface Sample extends GeneralSample {
-    experiment_id: string,
-    storage_condition: string,
-    contents: string,
-    analyst: string,
-}
-
-export interface PSample extends GeneralSample {
-    sample_name: string,
-    mk: string,
-    eln_notebook_number: string,
-}
-
-export interface Deleted {
-    qr_code_key: string,
-    audit_id: string,
-    audit_number: number,
-    type: string,
-    date_deleted: string,
-}
-
-export interface Printer {
-    ip: string,
-    name: string,
-    location: string,
-    model: string
-}
+/**
+ * This was some code I wrote to generate a table in the database with a given name and columns.
+ * Though it could potentially be used by some sort of admin dashboard but it's not necessary
+ * and could result in some vulnerabilities or non-compliance.
+ */
 
 // export class TableDoesNotExistError extends Error {
 //     constructor(tableName: string) {

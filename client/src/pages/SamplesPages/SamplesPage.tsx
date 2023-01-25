@@ -24,7 +24,7 @@ const SamplesPage = () => {
         const labels: string[] = [];
         for (let i = selected.length - 1; i >= 0; i--) {
             const sample = selected[i];
-            const { data } = await api.createLabel(sample);
+            const { data } = await api.createLabel(sample, Team.ARND);
             labels.push(data.qr_code_image);
         }
         return labels;
@@ -37,7 +37,6 @@ const SamplesPage = () => {
         dispatch(getPrinters())
     }
 
-    // TODO: Set up api endpoint for deleting samples
     const onDelete = async (selected: GeneralSample[]) => {
         // @ts-ignore
         for (let i = selected.length - 1; i >= 0; i--) {
@@ -46,7 +45,7 @@ const SamplesPage = () => {
                 audit_id: sample.audit_id,
                 audit_number: sample.audit_number,
                 qr_code_key: sample.qr_code_key,
-                type: Team.ARND,
+                team: Team.ARND,
                 date_deleted: new Date(Date.now()).toISOString().split('T')[0],
             });
         }
