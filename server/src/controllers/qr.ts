@@ -1,11 +1,11 @@
-import { generateHashKey, generateLabel } from "../brother/qr";
+import { generateHashKey, generateLayoutLabel } from "../brother/qr";
 import { printLabels } from "../brother/print";
-import prisma, { Printer, Sample } from "../db";
+import prisma from "../db";
 
 const labelCache: { [key: string]: string } = {};
 
 async function createQRCodeKey(req: any, res: any) {
-    const sample: Omit<Sample, 'qr_code_key'> = req.body;
+    const sample: Omit<ARNDSample, 'qr_code_key'> = req.body;
     try {
         const hashKey = generateHashKey(sample);
         res.status(201).json({ qr_code_key: hashKey });
@@ -15,12 +15,15 @@ async function createQRCodeKey(req: any, res: any) {
 }
 
 async function createQRCodeLabel(req: any, res: any) {
-    const sample: Sample = req.body;
+    const sample: ARNDSample = req.body;
+    const { team } = req.params;
     try {
         if (labelCache[sample.qr_code_key]) {
             res.status(201).json({ qr_code_image: labelCache[sample.qr_code_key] });
         } else {
-            const labelImage = await generateLabel(sample)
+            // This generates the hard coded label that looks good right now
+            // const labelImage = await generateLabel(sample)
+            const labelImage = await generateLayoutLabel(sample, team);
             const buffer = await labelImage.getBufferAsync('image/png')
             const base64 = buffer.toString('base64')
             labelCache[sample.qr_code_key] = base64;

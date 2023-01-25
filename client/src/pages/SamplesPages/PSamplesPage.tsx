@@ -22,7 +22,13 @@ const PSamplesPage = () => {
     }, [dispatch])
 
     const onGenerateLabels = async (selected: GeneralSample[]): Promise<string[]> => {
-        return [];
+        const labels: string[] = [];
+        for (let i = selected.length - 1; i >= 0; i--) {
+            const sample = selected[i];
+            const { data } = await api.createLabel(sample, Team.PSCS);
+            labels.push(data.qr_code_image);
+        }
+        return labels;
     }
 
     const onRefresh = () => {
@@ -39,7 +45,7 @@ const PSamplesPage = () => {
                 audit_id: sample.audit_id,
                 audit_number: sample.audit_number,
                 qr_code_key: sample.qr_code_key,
-                type: Team.PSCS,
+                team: Team.PSCS,
                 date_deleted: new Date(Date.now()).toISOString().split('T')[0],
             });
         }

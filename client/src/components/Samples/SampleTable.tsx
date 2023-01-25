@@ -20,6 +20,7 @@ import { GeneralSample, Printer } from "../../api/types";
 import { Link } from "react-router-dom";
 
 import "./styles.css";
+import { Team } from '../../constants';
 
 /**
  * Given an array of samples, will group those with the same audit id, and filter the ones

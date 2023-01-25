@@ -8,40 +8,44 @@
     - [x] Finish Audit Trail feature *(I think this is already done)
 
 # ToDo's From Jonathan
-- [ ] Get confirmation message ("sample successfully updated") on frontend when you edit a sample
+- [x] Get confirmation message ("sample successfully updated") on frontend when you edit a sample
 - [x] Have edits show up automatically without manually having to refresh page
-- [ ] Get confirmation message ("sample successfully created") on frontend when you create a new sample
+- [x] Get confirmation message ("sample successfully created") on frontend when you create a new sample
 - [ ] Add comment field for sample to database and frontend
     - [ ] Text field for scientists to add any additional information
 - [x] Make expired labels appear RED in View Samples page on Frontend
-    - [ ] Sample is expired when current_date > expiration_date
+    - [x] Sample is expired when current_date > expiration_date
 - [x] Add a filter button to the View Samples page on Frontend to show only expired samples
-- [~] Add option to discard sample in View Samples page on Frontend
-    - [ ] Discarding sample removes from table in View Samples
-    - [ ] DO NOT delete from database
-    - [ ] Add a variable in database indicating that sample is discarded
-    - [ ] Should not be able to print discarded samples
-    - [ ] Don't make any changes ot database - just don't send to View Samples page
-- [ ] Ability to view discarded samples on Frontend
-    - [ ] Show all discarded
-    - [ ] Ability to see history (audit trail) for discarded as well
+- [x] Add option to discard sample in View Samples page on Frontend
+    - [x] Discarding sample removes from table in View Samples
+    - [x] DO NOT delete from database
+    - [x] Should not be able to print discarded samples
+    - [x] Don't make any changes ot database - just don't send to View Samples page
+- [x] Ability to view discarded samples on Frontend
+    - [x] Show all discarded
+    - [x] Ability to see history (audit trail) for discarded as well
 - [ ] Calculate expiration data programatically **(next semester)**
     - [ ] Add extra columns in database for scientists to add in more info on contents of solution
     - [ ] Use solution contents to calculate the expiration date
 
 # Thomas' ToDo's
-- [ ] Get the audit table working with the new generalized SampleTable component
-    - [ ] probably will have to make the functions like onDelete, updateSample, onGenerateLabels
+- [x] Get the audit table working with the new generalized SampleTable component
+    - [x] probably will have to make the functions like onDelete, updateSample, onGenerateLabels
           inside of SampleTableProps optional.
-    - [ ] SampleTable should also ensure that generate labels, delete labels, and view audit table buttons 
+    - [x] SampleTable should also ensure that generate labels, delete labels, and view audit table buttons 
           are not shown inside of the grid toolbar.
-- [ ] Implement the necessary functions inside of the SamplesPage and PSamplesPage (onRefresh, onGenerateLabels, onDelete)
-- [ ] Work on generalizing the form component
-- [ ] Work on the nav bar
-- [ ] Get the printer working
+- [x] Implement the necessary functions inside of the SamplesPage and PSamplesPage (onRefresh, onGenerateLabels, onDelete)
+- [x] Work on generalizing the form component
+- [x] Work on the nav bar
+- [x] Get the printer working
 - [ ] MAKE README BETTER!
 - [ ] COMMENT ALL CODE :(((((!
 - [ ] LEARN DOCKER!
+- [ ] Refactor the deleted samples controller/api
+    - Given an audit_id, find the entry in the deleted table. Now we have access to the team. 
+      Based on the team query the correct table for all samples with the provided audit_id
+- [ ] Refactor routes to have a more, intuitive, name/endpoint
+- [ ] Add redux reducers & actions for deleted samples?
 
 # Server
 - [x] Generate qr code keys using a seeded or consistent hash algorithm
@@ -49,8 +53,8 @@
 
 # Client
 - [x] Button to edit a sample in table format
-    - [ ] Have a log somewhere that shows who edited what and when
-- [ ] Clean up styles, remove unused styles and make website look better
+    - [x] Have a log somewhere that shows who edited what and when
+- [x] Clean up styles, remove unused styles and make website look better
 - [x] Create different pages for (below) using react-router & react-router-dom. On top of this need to set up a router to redirect qr codes when scanned:
     - [x] Sample viewing
     - [x] Sample creating
@@ -64,4 +68,4 @@
     - if new_qr_code_key == existing_qr_code_key dont create that new sample
 - [x] Add the ability to scan a qr code using scanner
 - [ ] Possibly add the ability for scientist to have an account, basically just name so that you could sort by analyst. Or find all samples by a scientist. May not need cause you could just search anyway
-- [ ] When creating a sample, cache the the form contents so that if the page is changed and then we come back, the form hasnt gone away
+- [x] When creating a sample, cache the the form contents so that if the page is changed and then we come back, the form hasnt gone away

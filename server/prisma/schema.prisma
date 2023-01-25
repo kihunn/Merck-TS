@@ -39,7 +39,7 @@ model deleted {
     audit_id String @id
     audit_number Int
     qr_code_key String @unique
-    type String
+    team String
     date_deleted String
 }
 

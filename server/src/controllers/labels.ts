@@ -1,28 +1,28 @@
 import KSUID from "ksuid";
 import prisma from "../db";
 import { Prisma } from "@prisma/client";
+import { Request, Response } from "express";
 
-export async function setLabel(req: any, res: any) {
-    const { information, type }: { information: Prisma.JsonArray, type: string } = req.body;
-    const ksuid = await KSUID.random();
-    console.log(information, type);
+interface RequestBody {
+    information: LabelLayoutData;
+    team: Team;
+}
+
+export async function setLabel(req: Request<any, any, RequestBody>, res: Response) {
+    const { information, team }: RequestBody = req.body;
+    const ksuid: KSUID = await KSUID.random();
+    var result = null;
+
     try {
-        switch (type) {
-            case 'ARND':
-                const result = await prisma.labels.create({
-                    data: {
-                        id: ksuid.timestamp,
-                        team: type,
-                        data: information,
-                    }
-                })
-                break;
+        result = await prisma.labels.create({
+            data: {
+                id: ksuid.timestamp,
+                team,
+                data: <Prisma.InputJsonValue><unknown>information,
+            }
+        });
 
-            case 'PSCS':
-                break;
-        }
-
-        res.status(200).json({ message: "Label design set" });
+        res.status(200).json(result);
     } catch (error: any) {
         res.status(500).json({ message: error.message });
     }
