@@ -49,6 +49,8 @@ const LabelEditor: React.FC<React.PropsWithChildren<LabelEditorProps>> = ({
     const lastMousePositionRef = useRef<{ x: number, y: number }>({ x: 0, y: 0 });
 
     const [entityIDs, setEntityIDs] = useState<string[]>([]);
+
+    // For performance reasons, this could be split up into a couple different states if need be
     const [entities, setEntities] = useState<LabelEntityInfoStore>({});
     const [qrCodeID, setQRCodeID] = useState<string | null>(null);
     const [selectedTeam, setSelectedTeam] = useState<Team>(Team.ARND);
@@ -434,20 +436,20 @@ const LabelEditor: React.FC<React.PropsWithChildren<LabelEditorProps>> = ({
                 }}
             >
                 {
-                    entityIDs.map((textID) => {
-                        const textInfo = entities[textID];
+                    entityIDs.map((entityID) => {
+                        const entityInfo = entities[entityID];
                         return (
                             <LabelText
-                                key={textID}
-                                id={textID}
-                                position={textInfo.position}
-                                textColor={textInfo.fontColor}
-                                textSizePX={textInfo.fontSizePX}
+                                key={entityID}
+                                id={entityID}
+                                position={entityInfo.position}
+                                textColor={entityInfo.fontColor}
+                                textSizePX={entityInfo.fontSizePX}
                                 onMouseDown={onTextClickDown}
                                 onMouseUp={onTextClickUp}
                                 onMouseMove={onTextDrag}
                             >
-                                {textInfo.text}
+                                {entityInfo.text}
                             </LabelText>
                         );
                     })

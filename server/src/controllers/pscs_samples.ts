@@ -9,10 +9,111 @@ import { Request, Response } from "express";
  * @param res 
  */
 export async function getPSCSSamples(req: Request, res: Response) {
-    const samples = await prisma.psamples.findMany();
-    res.status(200).json(samples);
-}
+    const { deleted: queryDeleted, newest: queryNewest } = req.query as { deleted?: string, newest?: string };
 
+    const deleted = queryDeleted === undefined ? false : queryDeleted === 'true';
+    const newest = queryNewest === undefined ? true : queryNewest === 'true';
+
+    // Gets every samples stored in the database
+    // This will return every version of every sample, including those that have been deleted
+    if (deleted && !newest) {
+        const samples = await prisma.psamples.findMany();
+        return res.status(200).json(samples);
+    }
+
+    // This is required by the three queries below
+    const deletedAuditIDs = (await prisma.deleted.findMany({
+        select: {
+            audit_id: true
+        }
+    })).map((_) => _.audit_id);
+
+    // Gets the newest smaples, including those that have been deleted
+    if (deleted && newest) {
+        const deletedQRCodeKeys = (await prisma.deleted.findMany({
+            select: {
+                qr_code_key: true
+            }
+        })).map((_) => _.qr_code_key);
+
+        // Deleted samples are already the newest/most recent versions of their audit_id/audit trail.
+        const deletedSamples = await prisma.psamples.findMany({
+            where: {
+                qr_code_key: {
+                    in: deletedQRCodeKeys
+                }
+            }
+        });
+
+        const groupedSamples = await prisma.psamples.groupBy({
+            by: ['audit_id'],
+            where: {
+                audit_id: {
+                    notIn: deletedAuditIDs
+                }
+            },
+            _max: {
+                audit_number: true
+            }
+        });
+
+        const newestSamples = await prisma.psamples.findMany({
+            where: {
+                audit_id: {
+                    in: groupedSamples.map((_) => _.audit_id)
+                },
+                audit_number: {
+                    in: groupedSamples.map((_) => _._max.audit_number) as number[]
+                }
+            }
+        });
+
+        return res.status(200).json([...deletedSamples, ...newestSamples]);
+    }
+
+    // Gets the newest samples that have not been deleted
+    // This will be the most common type of request
+    if (!deleted && newest) {
+        const groupedSamples = await prisma.psamples.groupBy({
+            by: ['audit_id'],
+            where: {
+                audit_id: {
+                    notIn: deletedAuditIDs
+                }
+            },
+            _max: {
+                audit_number: true
+            }
+        });
+
+        const samples = await prisma.psamples.findMany({
+            where: {
+                audit_id: {
+                    in: groupedSamples.map((_) => _.audit_id)
+                },
+                audit_number: {
+                    in: groupedSamples.map((_) => _._max.audit_number) as number[]
+                }
+            }
+        });
+
+        return res.status(200).json(samples);
+    }
+
+    // Gets all samples that havent been deleted
+    if (!deleted && !newest) {
+        const samples = await prisma.psamples.findMany({
+            where: {
+                audit_id: {
+                    notIn: deletedAuditIDs
+                }
+            }
+        });
+
+        return res.status(200).json(samples);
+    }
+
+}
 /**
  * Retrieves a specific PSCS sample from the database
  * @param req params: qr_code_key - the qr_code_key of the sample to be returned

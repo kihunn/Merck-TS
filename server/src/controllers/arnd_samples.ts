@@ -4,13 +4,119 @@ import { generateHashKey } from "../brother/qr";
 import { Request, Response } from "express";
 
 /**
- * Returns an array of all ARND samples in the database
- * @param req 
- * @param res 
+ * Returns all samples in the database
+ * @method GET
+ * @query 
+ * * ?deleted=true - returns all samples, including those that have been deleted (this includes deleted samples, it is not only deleted samples)
+ * * ?deleted=false - returns all samples, excluding those that have been deleted
+ * * ?newest=true - returns the newest sample for each audit_id
+ * * ?newest=false - returns all samples
  */
 export async function getARNDSamples(req: Request, res: Response) {
-    const samples = await prisma.samples.findMany();
-    res.status(200).json(samples);
+    const { deleted: queryDeleted, newest: queryNewest } = req.query as { deleted?: string, newest?: string };
+
+    const deleted = queryDeleted === undefined ? false : queryDeleted === 'true';
+    const newest = queryNewest === undefined ? true : queryNewest === 'true';
+
+    // Gets every samples stored in the database
+    // This will return every version of every sample, including those that have been deleted
+    if (deleted && !newest) {
+        const samples = await prisma.samples.findMany();
+        return res.status(200).json(samples);
+    }
+
+    // This is required by the three queries below
+    const deletedAuditIDs = (await prisma.deleted.findMany({
+        select: {
+            audit_id: true
+        }
+    })).map((_) => _.audit_id);
+
+    // Gets the newest smaples, including those that have been deleted
+    if (deleted && newest) {
+        const deletedQRCodeKeys = (await prisma.deleted.findMany({
+            select: {
+                qr_code_key: true
+            }
+        })).map((_) => _.qr_code_key);
+
+        // Deleted samples are already the newest/most recent versions of their audit_id/audit trail.
+        const deletedSamples = await prisma.samples.findMany({
+            where: {
+                qr_code_key: {
+                    in: deletedQRCodeKeys
+                }
+            }
+        });
+
+        const groupedSamples = await prisma.samples.groupBy({
+            by: ['audit_id'],
+            where: {
+                audit_id: {
+                    notIn: deletedAuditIDs
+                }
+            },
+            _max: {
+                audit_number: true
+            }
+        });
+
+        const newestSamples = await prisma.samples.findMany({
+            where: {
+                audit_id: {
+                    in: groupedSamples.map((_) => _.audit_id)
+                },
+                audit_number: {
+                    in: groupedSamples.map((_) => _._max.audit_number) as number[]
+                }
+            }
+        });
+
+        return res.status(200).json([...deletedSamples, ...newestSamples]);
+    }
+
+    // Gets the newest samples that have not been deleted
+    // This will be the most common type of request
+    if (!deleted && newest) {
+        const groupedSamples = await prisma.samples.groupBy({
+            by: ['audit_id'],
+            where: {
+                audit_id: {
+                    notIn: deletedAuditIDs
+                }
+            },
+            _max: {
+                audit_number: true
+            }
+        });
+
+        const samples = await prisma.samples.findMany({
+            where: {
+                audit_id: {
+                    in: groupedSamples.map((_) => _.audit_id)
+                },
+                audit_number: {
+                    in: groupedSamples.map((_) => _._max.audit_number) as number[]
+                }
+            }
+        });
+
+        return res.status(200).json(samples);
+    }
+
+    // Gets all samples that havent been deleted
+    if (!deleted && !newest) {
+        const samples = await prisma.samples.findMany({
+            where: {
+                audit_id: {
+                    notIn: deletedAuditIDs
+                }
+            }
+        });
+
+        return res.status(200).json(samples);
+    }
+
 }
 
 /**
