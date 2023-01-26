@@ -12,7 +12,7 @@ import { AxiosResponse } from "axios";
 
 import { useEffect, useRef, useState } from "react";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import * as api from '../../api/index';
 import { GeneralSample, Printer } from "../../api/types";
@@ -20,55 +20,6 @@ import { GeneralSample, Printer } from "../../api/types";
 import { Link } from "react-router-dom";
 
 import "./styles.css";
-import { Team } from '../../constants';
-
-/**
- * Given an array of samples, will group those with the same audit id, and filter the ones
- * with the highest audit_number.
- * @param allSamples The samples to be filtered
- * @returns An array of the newest samples and an object with keys as the unique audit_id and values being an array of all samples with that audit_id
- */
-async function filterNewestNonDeletedSamples(allSamples: GeneralSample[]): Promise<{ newestSamples: GeneralSample[], auditGroups: AuditGroups }> {
-    const auditGroups: AuditGroups = {};
-    const newestSamples: GeneralSample[] = [];
-    const deletedSamples: any[] = (await api.fetchDeleted()).data;
-    const deletedAuditIDs = deletedSamples.map((d) => d.audit_id);
-
-    /**
-     * Generates an object with keys as the unique audit_id and values
-     * being an array of all samples with that audit_id
-     */
-    for (const sample of allSamples) {
-        if (!auditGroups[sample.audit_id]) {
-            auditGroups[sample.audit_id] = [sample];
-        } else {
-            auditGroups[sample.audit_id].push(sample);
-        }
-    }
-
-    /**
-     * Now we go through that object and for each unique audit_id
-     * we find the sample with the max audit_number (aka most recent sample)
-     * and add it to `newestSamples`
-     */
-    for (const key of Object.keys(auditGroups)) {
-        // Reduce function goes through all the samples in an audit group and finds the one with the highest audit_number (aka most recent sample)
-        const newestSample: GeneralSample = auditGroups[key].reduce((max: GeneralSample, value: GeneralSample) => {
-            return value.audit_number > max.audit_number ? value : max;
-        })
-        newestSamples.push(newestSample);
-    }
-
-    for (let i = newestSamples.length - 1; i >= 0; i--) {
-        if (deletedAuditIDs.includes(newestSamples[i].audit_id)) {
-            newestSamples.splice(i, 1);
-        }
-    }
-
-    return { newestSamples, auditGroups };
-}
-
-type AuditGroups = { [key: GeneralSample["audit_id"]]: GeneralSample[] }
 
 interface SampleTableProps {
     /**
@@ -179,14 +130,13 @@ const SampleTable: React.FC<SampleTableProps> = ({
 
     const labelImageContainerRef = useRef<HTMLDivElement>(null);
 
-
     /**
      * If we are given `overrideSamples` use those, 
      * otherwise, select our samples from the redux store.
      * * We must call useSelector initially due to reacts rule of hooks
      */
     var samples: GeneralSample[] = useSelector((state: any) => state[selector]);
-    
+
     if (overrideSamples !== undefined) {
         samples = overrideSamples;
     }
@@ -195,29 +145,6 @@ const SampleTable: React.FC<SampleTableProps> = ({
      * Now we will select all the printers from the redux store.
      */
     const printers: Printer[] = useSelector((state: any) => state.printers);
-
-    /**
-     * Assuming a change in the samples array, this function will filter
-     * out the newest samples and set those as viewable. If this is an audit 
-     * table it will set the viewable samples to be the same as the samples array.
-     * Therefore if the property `isAuditTable` is true, then `overrideSamples` property
-     * should be provided.
-     */
-    const updateViewableSamples = async () => {
-        if (isAuditTable) {
-            setViewableSamples(samples);
-        } else {
-            const { newestSamples } = await filterNewestNonDeletedSamples(samples);
-            setViewableSamples(newestSamples);
-        }
-    }
-
-    /** 
-     * As samples are loaded in via redux useSelector from above we update our viewable samples 
-     */
-    useEffect(() => {
-        updateViewableSamples();
-    }, [samples])
 
     /** ----- on functions ----- */
 
@@ -251,23 +178,32 @@ const SampleTable: React.FC<SampleTableProps> = ({
 
     /**
      * Handles the editing process and makes the relevant api call to update the sample.
+     * Due to the async nature of this function and the fact that we make a call to the api the following happens:
+     * 1. We tell the api that we are updating the sample
+     * 2. We tell the redux store to refresh aka get all samples again
+     * 3. We return whatever the contents of the row are that the user sees (without the new qr code key)
+     * 4. The api call from part 1 goes through and updates the database
+     * 5. The redux store refreshes and the user sees the updated sample
+     * * This results in the user seeing the new row, with the old qr code key, for a split second. Then once the api call goes through the user sees the updated row with the new qr code key.
+     * * Essentially the old row is deleted and a new row is created with the same data. The only difference is the qr code key.
+     * * A possible fix could be to generate the new qr_code_key on the frontend. 
      * @param newRow The new row data
      * @param oldRow The old row data
      * @returns The data to display in the data grid
      */
     const onSampleRowEdit = async (newRow: GeneralSample, oldRow: GeneralSample): Promise<GeneralSample> => {
         const prismaDate = (dstring: string) => new Date(dstring).toISOString().split('T')[0];
-        
-        const { data } = await updateSample!({
+
+        const row = {
             ...newRow,
             date_entered: prismaDate(newRow.date_entered),
             date_modified: prismaDate(new Date(Date.now()).toString()),
             expiration_date: prismaDate(newRow.expiration_date),
-        });
+        }
 
-        samples.push(data);
+        const { data } = await updateSample!(row);
 
-        updateViewableSamples();
+        onRefresh?.();
 
         return data;
     }
@@ -407,7 +343,7 @@ const SampleTable: React.FC<SampleTableProps> = ({
         <div className='data-grid-container'>
             <DataGrid className='data-grid'
                 experimentalFeatures={{ newEditingApi: true }}
-                rows={viewableSamples}
+                rows={samples}
                 columns={columns}
                 pageSize={pageSize}
                 rowsPerPageOptions={[10, 25, 50]}

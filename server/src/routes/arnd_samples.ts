@@ -12,6 +12,11 @@ const router = express.Router()
 /**
  * Returns all samples in the database
  * @method GET
+ * @query 
+ * * ?deleted=true - returns all samples, including those that have been deleted
+ * * ?deleted=false - returns all samples, excluding those that have been deleted
+ * * ?newest=true - returns the newest sample for each audit_id
+ * * ?newest=false - returns all samples
  */
 router.get('/', getARNDSamples)
 
