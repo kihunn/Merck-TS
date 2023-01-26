@@ -1,7 +1,7 @@
 # Merck Label Dashboard API Guide
 
 # Introduction
-One of the first things I believe imperative to do if yo are new to this api is to get in touch with the common types we use. You can think of these as the typescript interface we use or the structure of the JSON data that is accepted and returned by our api. In our case we are most commonly dealing with samples. Currently we have three "types" of samples, a `GeneralSample`, `ARNDSample`, `PSCSSample`. The `GeneralSample` defines what properties `ALL` samples have regardless of the team it is for. The `ARND` and `PSCS` samples are team specific samples with properties provided my merck. Below I will define the structure of the samples in typescript interfaces.
+One of the first things I believe imperative to do if you are new to this api is to get in touch with the common types we use. You can think of these as a typescript interface we use or the structure of the JSON data that is accepted and returned by our api. In our case we are most commonly dealing with samples. Currently we have three "types" of samples, a `GeneralSample`, `ARNDSample`, `PSCSSample`. The `GeneralSample` defines what properties `ALL` samples have regardless of the team it is for. The `ARND` and `PSCS` samples are team specific samples with properties provided my merck. Below I will define the structure of the samples in typescript interfaces.
 
 ### Types
 
