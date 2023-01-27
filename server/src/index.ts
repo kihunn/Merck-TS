@@ -18,14 +18,10 @@ import labelsRoutes from './routes/labels'
     app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
     app.use(cors());
 
-
-    app.get("/", (req, res) => {
-        res.send("Hello World!")
-    });
-
     app.use('/arnd_samples', sampleRoutes)
     app.use('/pscs_samples', psampleRoutes)
     app.use('/qr', qrRoutes);
+
     app.use('/deleted', deletedRoutes);
     app.use('/labels', labelsRoutes);
 
