@@ -8,7 +8,6 @@
 /server/prisma/migrations
 
 /server/.env
-/server/.docker.env
 /server/package-lock.json
 
 /postgres-db
