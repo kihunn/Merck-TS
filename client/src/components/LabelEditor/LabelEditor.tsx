@@ -74,7 +74,7 @@ const LabelEditor: React.FC<React.PropsWithChildren<LabelEditorProps>> = ({
     const loadSavedLayout = () => {
         const storedText: LabelEntityInfo[] = JSON.parse(localStorage.getItem(selectedTeam) ?? "[]");
         const restoredTexts: LabelEntityInfoStore = {};
-        var newQRCodeID = null;
+        var newQRCodeID: string | null = null;
         for (const text of storedText) {
             const { id, text: textInfo } = generateText(text);
             if (text.size !== undefined) {
