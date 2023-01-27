@@ -5,7 +5,9 @@ ENV NODE_ENV=production
 WORKDIR /usr/merck/src/client
 
 COPY package.json .
-COPY package-lock.json .
+
+# Wont have package-lock.json untill npm install
+# COPY package-lock.json .
 
 RUN npm install --force
 
