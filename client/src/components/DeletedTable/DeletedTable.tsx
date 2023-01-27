@@ -4,6 +4,7 @@ import NavBar from "../NavBar/NavBar";
 import { GeneralSample } from "../../api/types";
 import SampleTable from "../Samples/SampleTable";
 import * as api from "../../api/index";
+import { GridColDef } from "@mui/x-data-grid";
 
 interface DeletedTableProps {
     team: Team
@@ -11,7 +12,7 @@ interface DeletedTableProps {
 
 export const DeletedTable: React.FC<DeletedTableProps> = ({ team }: DeletedTableProps) => {
 
-    var overrideGridColDefs = [];
+    var overrideGridColDefs: GridColDef[] = [];
     switch (team) {
         case Team.ARND:
             overrideGridColDefs = SamplesTableGridColDefs

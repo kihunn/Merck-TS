@@ -11,7 +11,7 @@ interface RequestBody {
 export async function setLabel(req: Request<any, any, RequestBody>, res: Response) {
     const { information, team }: RequestBody = req.body;
     const ksuid: KSUID = await KSUID.random();
-    var result = null;
+    var result: any = null;
 
     try {
         result = await prisma.labels.create({

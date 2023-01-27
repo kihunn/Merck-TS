@@ -10,5 +10,7 @@
 /server/.env
 /server/package-lock.json
 
+/postgres-db
+
 .vscode
 .DS_Store
