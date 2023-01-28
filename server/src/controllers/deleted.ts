@@ -40,7 +40,7 @@ export async function getDeletedSamplesByTeam(req: Request, res: Response) {
 
         switch (team) {
             case 'ARND':
-                deletedSamples = await prisma.samples.findMany({
+                deletedSamples = await prisma.samples_old.findMany({
                     where: {
                         qr_code_key: {
                             in: deletedQRCodeKeys

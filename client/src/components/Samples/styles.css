@@ -34,13 +34,18 @@
     background-color: var(--data-grid-expired-color) !important;
 }
 
-.MuiDataGrid-row.data-grid-row-expired.Mui-selected {
+.MuiDataGrid-row .data-grid-row-expired .Mui-selected {
     opacity: calc(var(--data-grid-expired-opacity) + 0.1);
     background-color: var(--data-grid-expired-color) !important;
 }
 
 .MuiDataGrid-row.data-grid-row-expired.Mui-selected:hover {
     opacity: calc(var(--data-grid-expired-opacity) + 0.2);
+    background-color: var(--data-grid-expired-color) !important;
+}
+
+.MuiDataGrid-row--editing .data-grid-row-expired {
+    opacity: calc(var(--data-grid-expired-opacity) + 0.1);
     background-color: var(--data-grid-expired-color) !important;
 }
 

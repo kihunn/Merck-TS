@@ -21,7 +21,7 @@ export async function getARNDSamples(req: Request, res: Response) {
     // Gets every samples stored in the database
     // This will return every version of every sample, including those that have been deleted
     if (deleted && !newest) {
-        const samples = await prisma.samples.findMany();
+        const samples = await prisma.samples_old.findMany();
         return res.status(200).json(samples);
     }
 
@@ -41,7 +41,7 @@ export async function getARNDSamples(req: Request, res: Response) {
         })).map((_) => _.qr_code_key);
 
         // Deleted samples are already the newest/most recent versions of their audit_id/audit trail.
-        const deletedSamples = await prisma.samples.findMany({
+        const deletedSamples = await prisma.samples_old.findMany({
             where: {
                 qr_code_key: {
                     in: deletedQRCodeKeys
@@ -49,7 +49,7 @@ export async function getARNDSamples(req: Request, res: Response) {
             }
         });
 
-        const groupedSamples = await prisma.samples.groupBy({
+        const groupedSamples = await prisma.samples_old.groupBy({
             by: ['audit_id'],
             where: {
                 audit_id: {
@@ -61,7 +61,7 @@ export async function getARNDSamples(req: Request, res: Response) {
             }
         });
 
-        const newestSamples = await prisma.samples.findMany({
+        const newestSamples = await prisma.samples_old.findMany({
             where: {
                 audit_id: {
                     in: groupedSamples.map((_) => _.audit_id)
@@ -78,7 +78,7 @@ export async function getARNDSamples(req: Request, res: Response) {
     // Gets the newest samples that have not been deleted
     // This will be the most common type of request
     if (!deleted && newest) {
-        const groupedSamples = await prisma.samples.groupBy({
+        const groupedSamples = await prisma.samples_old.groupBy({
             by: ['audit_id'],
             where: {
                 audit_id: {
@@ -90,7 +90,7 @@ export async function getARNDSamples(req: Request, res: Response) {
             }
         });
 
-        const samples = await prisma.samples.findMany({
+        const samples = await prisma.samples_old.findMany({
             where: {
                 audit_id: {
                     in: groupedSamples.map((_) => _.audit_id)
@@ -106,7 +106,7 @@ export async function getARNDSamples(req: Request, res: Response) {
 
     // Gets all samples that havent been deleted
     if (!deleted && !newest) {
-        const samples = await prisma.samples.findMany({
+        const samples = await prisma.samples_old.findMany({
             where: {
                 audit_id: {
                     notIn: deletedAuditIDs
@@ -131,7 +131,7 @@ export async function getARNDSamples(req: Request, res: Response) {
 export async function getARNDSample(req: Request, res: Response) {
     const { qr_code_key } = req.params
     try {
-        const sample = await prisma.samples.findUnique({
+        const sample = await prisma.samples_old.findUnique({
             where: {
                 qr_code_key
             }
@@ -167,7 +167,7 @@ export async function createARNDSample(req: Request, res: Response) {
         if (sample.qr_code_key === undefined)
             sample.qr_code_key = generateHashKey(sample);
 
-        const newSample = await prisma.samples.create({
+        const newSample = await prisma.samples_old.create({
             data: {
                 ...sample,
                 audit_number: ksuid.timestamp
@@ -208,7 +208,7 @@ export async function updateARNDSample(req: Request, res: Response) {
         const newQR = generateHashKey(unhashedNewSample as UnhashedPSCSSample);
         newSample.qr_code_key = newQR;
 
-        const sample = await prisma.samples.create({
+        const sample = await prisma.samples_old.create({
             data: { ...newSample, audit_id: newSample.audit_id, audit_number: ksuid.timestamp }
         })
 

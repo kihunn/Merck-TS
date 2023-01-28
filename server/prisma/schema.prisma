@@ -3,7 +3,104 @@ datasource db {
     url = env("DB_URI")
 }
 
-model samples {
+// ------------------------------
+// NEW MODELS BELOW
+// ------------------------------
+
+model Sample {
+    // ------------------------------------------------
+    // These 6 fields are present on every sample
+    qr_code_key     String   @id @unique
+    date_created    DateTime @default(now())
+    date_modified   DateTime @updatedAt
+    expiration_date DateTime @default(now())
+    audit_id        String   @default(uuid())
+    audit_number    Int      @default(autoincrement()) @unique
+    // ------------------------------------------------
+
+    // The team that the sample belongs to
+    team_name       String   @default("unknown")
+
+    // The "unstructured data" of the sample
+    data            Json     @default("{}")
+
+    // This maps to the table name in the database.
+    // The model is what prisma will use on the client.
+    // - i.e. prisma.sample.findMany()
+    @@map("samples")
+}
+
+model Team {
+    // The team name is the primary key although not unique
+    name   String @id
+
+    // The team id is unique and autoincremented
+    id     Int    @default(autoincrement()) @unique
+
+    status Int // On INSERT, specify 1 to 'create' the team, specify -1 to 'delete' the team, 
+               // We need this due to the constraint of only being able to use the INSERT operation
+               // By grouping teams with the same name, and summing the count, we can get the status (is it in use or not) 0 = not in use, 1 = in use
+
+    // This maps to the table name in the database.
+    // The model is what prisma will use on the client.
+    // - i.e. prisma.team.findMany()
+    @@map("teams")
+}
+
+model TeamField {
+    team_name   String @id
+    name        String // This should map to a key in the data field of the sample with the same team_name
+    displayName String
+    status      Int    // On INSERT, specify 1 to 'create' the field, specify -1 to 'delete' the field, 
+                       // We need this due to the constraint of only being able to use the INSERT operation
+                       // By grouping fields with the same name, and summing the count, we can get the status (is it in use or not) 0 = not in use, 1 = in use
+
+    // This maps to the table name in the database.
+    // The model is what prisma will use on the client.
+    // - i.e. prisma.team_field.findMany()
+    @@map("team_fields")
+}
+
+model Deleted {
+    // This is all the information we need to store about a deleted sample
+    // With this we get the entire history of the sample
+    audit_id String   @id
+
+    // We can do a similar thing to TeamField if we want to restore the sample in the future
+    // When a sample is deleted, we INSERT the same audit id, with a status of 1.
+    // When a sample is restored, we INSERT the same audit id, with a status of -1.
+    // By grouping the audit ids, and summing the status, we can get the status of the sample (is it deleted or not) 0 = not deleted, 1 = deleted
+    status   Int 
+
+    @@map("deleted_samples")
+}
+
+model Printer {
+    ip       String @id @unique
+    name     String @default("Brother QL-820NWB")
+    location String @default("unknown")
+
+    @@map("brother_ql_printers")
+}
+
+// With this setup teams should be able to have multiple labels with different sizes
+// To find the current label for a specific size for a team, we can do something like:
+// Group by team_name, then group by label_width and label_length, then max the id
+model Label {
+    id           Int    @id @default(autoincrement()) @unique
+    team_name    String // The team that the label belongs to
+    label_width  Int    // The width of the label in mm
+    label_length Int    // The length of the label in mm
+    data         Json   // The data that will be used to generate the label
+
+    @@map("team_label_layouts")
+}
+
+// ------------------------------
+// OLD MODELS BELOW
+// ------------------------------
+
+model samples_old {
     qr_code_key String @id
     experiment_id String
     storage_condition String
