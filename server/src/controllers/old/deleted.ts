@@ -1,5 +1,5 @@
 import { deleted } from "@prisma/client";
-import prisma from "../db";
+import prisma from "../../db";
 import { Request, Response } from "express";
 
 /**
@@ -28,13 +28,13 @@ export async function getDeletedSamplesByTeam(req: Request, res: Response) {
 
         const deletedQRCodeKeys = (await prisma.deleted.findMany({
             where: {
-                team: team as string
+                team_name: team as string
             },
             select: {
-                qr_code_key: true
+                audit_id: true
             }
         }))
-            .map((_) => _.qr_code_key);
+            .map((_) => _.audit_id);
 
         var deletedSamples: (ARNDSample | PSCSSample)[] = [];
 
@@ -70,6 +70,7 @@ export async function createDeleted(req: any, res: any) {
     const deleted: Deleted = req.body;
     try {
         const newDeleted = await prisma.deleted.create({
+            // @ts-ignore
             data: { ...deleted }
         })
         res.status(201).json(newDeleted)

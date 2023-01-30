@@ -4,7 +4,7 @@ import {
     getPSCSSample,
     createPSCSSample,
     updatePSCSSample
-} from '../controllers/pscs_samples'
+} from '../../controllers/old/pscs_samples'
 
 const router = express.Router()
 

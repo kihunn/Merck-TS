@@ -1,6 +1,6 @@
-import { generateHashKey, generateLayoutLabel } from "../brother/qr";
-import { printLabels } from "../brother/print";
-import prisma from "../db";
+import { generateHashKey, generateLayoutLabel } from "../../brother/qr";
+import { printLabels } from "../../brother/print";
+import prisma from "../../db";
 
 const labelCache: { [key: string]: string } = {};
 

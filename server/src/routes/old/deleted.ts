@@ -3,7 +3,7 @@ import {
     createDeleted,
     getDeletedSamples,
     getDeletedSamplesByTeam
-} from "../controllers/deleted";
+} from "../../controllers/old/deleted";
 
 const router = express.Router()
 

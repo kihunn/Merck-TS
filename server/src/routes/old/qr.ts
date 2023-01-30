@@ -1,5 +1,5 @@
 import express from 'express';
-import { createQRCodeKey, createQRCodeLabel, getPrinters, printQRCodeLabel } from '../controllers/qr'
+import { createQRCodeKey, createQRCodeLabel, getPrinters, printQRCodeLabel } from '../../controllers/old/qr'
 
 const router = express.Router();
 

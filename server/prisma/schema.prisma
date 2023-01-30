@@ -10,10 +10,10 @@ datasource db {
 model Sample {
     // ------------------------------------------------
     // These 6 fields are present on every sample
-    qr_code_key     String   @id @unique
+    id     String            @id @unique @default(uuid())
     date_created    DateTime @default(now())
     date_modified   DateTime @updatedAt
-    expiration_date DateTime @default(now())
+    expiration_date DateTime @default(dbgenerated("now() + interval '1 day'"))
     audit_id        String   @default(uuid())
     audit_number    Int      @default(autoincrement()) @unique
     // ------------------------------------------------
@@ -32,10 +32,10 @@ model Sample {
 
 model Team {
     // The team name is the primary key although not unique
-    name   String @id
+    name   String 
 
     // The team id is unique and autoincremented
-    id     Int    @default(autoincrement()) @unique
+    id     Int    @id @default(autoincrement()) @unique
 
     status Int // On INSERT, specify 1 to 'create' the team, specify -1 to 'delete' the team, 
                // We need this due to the constraint of only being able to use the INSERT operation
@@ -48,12 +48,13 @@ model Team {
 }
 
 model TeamField {
-    team_name   String @id
+    team_name   String
     name        String // This should map to a key in the data field of the sample with the same team_name
     displayName String
     status      Int    // On INSERT, specify 1 to 'create' the field, specify -1 to 'delete' the field, 
                        // We need this due to the constraint of only being able to use the INSERT operation
                        // By grouping fields with the same name, and summing the count, we can get the status (is it in use or not) 0 = not in use, 1 = in use
+    id         Int    @id @default(autoincrement()) @unique  // The id of the field, need this since we can't use the team_name as the primary key
 
     // This maps to the table name in the database.
     // The model is what prisma will use on the client.
@@ -64,7 +65,11 @@ model TeamField {
 model Deleted {
     // This is all the information we need to store about a deleted sample
     // With this we get the entire history of the sample
-    audit_id String   @id
+    audit_id   String
+    team_name  String
+
+    // We need a unique id for each deleted sample
+    date_deleted DateTime @default(now()) @unique
 
     // We can do a similar thing to TeamField if we want to restore the sample in the future
     // When a sample is deleted, we INSERT the same audit id, with a status of 1.
@@ -72,6 +77,9 @@ model Deleted {
     // By grouping the audit ids, and summing the status, we can get the status of the sample (is it deleted or not) 0 = not deleted, 1 = deleted
     status   Int 
 
+    // This maps to the table name in the database.
+    // The model is what prisma will use on the client.
+    // - i.e. prisma.deleted.findMany()
     @@map("deleted_samples")
 }
 
@@ -80,12 +88,16 @@ model Printer {
     name     String @default("Brother QL-820NWB")
     location String @default("unknown")
 
+    // This maps to the table name in the database.
+    // The model is what prisma will use on the client.
+    // - i.e. prisma.printer.findMany()
     @@map("brother_ql_printers")
 }
 
 // With this setup teams should be able to have multiple labels with different sizes
 // To find the current label for a specific size for a team, we can do something like:
 // Group by team_name, then group by label_width and label_length, then max the id
+// - also if provided a label width and length, just group by the team they provided and max id again.
 model Label {
     id           Int    @id @default(autoincrement()) @unique
     team_name    String // The team that the label belongs to
@@ -93,6 +105,9 @@ model Label {
     label_length Int    // The length of the label in mm
     data         Json   // The data that will be used to generate the label
 
+    // This maps to the table name in the database.
+    // The model is what prisma will use on the client.
+    // - i.e. prisma.label.findMany()
     @@map("team_label_layouts")
 }
 

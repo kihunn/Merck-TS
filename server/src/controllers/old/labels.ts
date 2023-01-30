@@ -1,5 +1,5 @@
 import KSUID from "ksuid";
-import prisma from "../db";
+import prisma from "../../db";
 import { Prisma } from "@prisma/client";
 import { Request, Response } from "express";
 

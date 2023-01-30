@@ -1,5 +1,5 @@
 import express from "express";
-import { setLabel } from "../controllers/labels";
+import { setLabel } from "../../controllers/old/labels";
 
 const router = express.Router()
 

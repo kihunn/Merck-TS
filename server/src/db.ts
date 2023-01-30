@@ -1,47 +1,30 @@
 import { PrismaClient } from '@prisma/client'
 const prisma: PrismaClient = new PrismaClient()
 
-/**
- * This was some code I wrote to generate a table in the database with a given name and columns.
- * Though it could potentially be used by some sort of admin dashboard but it's not necessary
- * and could result in some vulnerabilities or non-compliance.
- */
+// Main purpose of this is to keep have a single source of truth for the status values when creating or deleteing.
+// Use STATUS.CREATE when creating a new record.
+// Use STATUS.DELETE when deleting a record.
+// By summing status values, we can deduce whether the record is active or not. 
+// - If the sum is 1, the record is active. else, it is not.
+export const STATUS = {
+    CREATE: 1, 
+    DELETE: -1
+} as const;
 
-// export class TableDoesNotExistError extends Error {
-//     constructor(tableName: string) {
-//         super(`Table ${tableName} does not exist`);
-//     }
-// }
+export const teamIsActive = async (team: string) => {
+    const teamExists = await prisma.team.groupBy({
+        by: ['name'],
+        where: {
+            name: team,
+        },
+        _sum: {
+            status: true
+        }
+    });
 
-// export async function dropTable(tableName: string) {
-//     return await prisma.$queryRawUnsafe(`DROP TABLE IF EXISTS ${tableName}`);
-// }
+    return teamExists.length > 0 && teamExists[0]._sum.status === 1;
+}
 
-// export async function createTableIfNotExists(tableName: string, columnNames: string[], columnTypes?: string[]) {
-//     if (columnTypes != undefined && columnNames.length != columnTypes.length)
-//         throw new Error("Column names and types must be the same length");
-//     return await prisma.$queryRawUnsafe(`CREATE TABLE IF NOT EXISTS ${tableName} (${columnNames.map((name: string, index: number) => `${name} ${columnTypes != undefined ? columnTypes[index] : "TEXT"}`).join(", ")})`);
-// }
 
-// export async function createTableAlways(tableName: string, columnNames: string[], columnTypes?: string[]) {
-//     if (columnTypes != undefined && columnNames.length != columnTypes.length)
-//         throw new Error("Column names and types must be the same length");
-//     await dropTable(tableName);
-//     return await createTableIfNotExists(tableName, columnNames, columnTypes);
-// }
-
-// export async function insertInto(tableName: string, columnNames: string[], values: string[]) {
-//     if (columnNames.length != values.length)
-//         throw new Error("Column names and values must be the same length");
-//     try {
-//         return await prisma.$queryRawUnsafe(`INSERT INTO ${tableName} (${columnNames.join(", ")}) VALUES (${values.map((value: string) => `'${value}'`).join(", ")})`);
-//     } catch (error: any) {
-//         if (error.message.includes(`"${tableName}" does not exist`))
-//             throw new TableDoesNotExistError(tableName);
-//         else
-//             throw error;
-//     }
-// }
-
-export default prisma
+export default prisma;
 

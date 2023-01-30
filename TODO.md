@@ -40,12 +40,14 @@
 - [x] Get the printer working
 - [ ] MAKE README BETTER!
 - [ ] COMMENT ALL CODE :(((((!
-- [ ] LEARN DOCKER!
+- [x] LEARN DOCKER!
 - [ ] Refactor the deleted samples controller/api
     - Given an audit_id, find the entry in the deleted table. Now we have access to the team. 
       Based on the team query the correct table for all samples with the provided audit_id
 - [ ] Refactor routes to have a more, intuitive, name/endpoint
 - [ ] Add redux reducers & actions for deleted samples?
+- [ ] With the new db design, it might be important for admins to be able to specify the type of a field.
+      Such as, DateTime, Number, String, and have it as a drop down when they view the team on the admin panel.
 
 # Server
 - [x] Generate qr code keys using a seeded or consistent hash algorithm

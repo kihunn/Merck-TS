@@ -4,7 +4,7 @@ import {
     getARNDSample,
     createARNDSample,
     updateARNDSample
-} from '../controllers/arnd_samples'
+} from '../../controllers/old/arnd_samples'
 
 const router = express.Router()
 

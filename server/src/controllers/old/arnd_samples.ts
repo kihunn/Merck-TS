@@ -1,14 +1,18 @@
-import prisma from "../db";
+import prisma from "../../db";
 import KSUID from 'ksuid';
-import { generateHashKey } from "../brother/qr";
+import { generateHashKey } from "../../brother/qr";
 import { Request, Response } from "express";
 
 /**
- * Returns an array of all PSCS samples in the database
- * @param req 
- * @param res 
+ * Returns all samples in the database
+ * @method GET
+ * @query 
+ * * ?deleted=true - returns all samples, including those that have been deleted (this includes deleted samples, it is not only deleted samples)
+ * * ?deleted=false - returns all samples, excluding those that have been deleted
+ * * ?newest=true - returns the newest sample for each audit_id
+ * * ?newest=false - returns all samples
  */
-export async function getPSCSSamples(req: Request, res: Response) {
+export async function getARNDSamples(req: Request, res: Response) {
     const { deleted: queryDeleted, newest: queryNewest } = req.query as { deleted?: string, newest?: string };
 
     const deleted = queryDeleted === undefined ? false : queryDeleted === 'true';
@@ -17,7 +21,7 @@ export async function getPSCSSamples(req: Request, res: Response) {
     // Gets every samples stored in the database
     // This will return every version of every sample, including those that have been deleted
     if (deleted && !newest) {
-        const samples = await prisma.psamples.findMany();
+        const samples = await prisma.samples_old.findMany();
         return res.status(200).json(samples);
     }
 
@@ -30,22 +34,16 @@ export async function getPSCSSamples(req: Request, res: Response) {
 
     // Gets the newest smaples, including those that have been deleted
     if (deleted && newest) {
-        const deletedQRCodeKeys = (await prisma.deleted.findMany({
-            select: {
-                qr_code_key: true
-            }
-        })).map((_) => _.qr_code_key);
-
-        // Deleted samples are already the newest/most recent versions of their audit_id/audit trail.
-        const deletedSamples = await prisma.psamples.findMany({
+        // Broken
+        const deletedSamples = await prisma.samples_old.findMany({
             where: {
-                qr_code_key: {
-                    in: deletedQRCodeKeys
+                audit_id: {
+                    in: deletedAuditIDs
                 }
             }
         });
 
-        const groupedSamples = await prisma.psamples.groupBy({
+        const groupedSamples = await prisma.samples_old.groupBy({
             by: ['audit_id'],
             where: {
                 audit_id: {
@@ -57,7 +55,7 @@ export async function getPSCSSamples(req: Request, res: Response) {
             }
         });
 
-        const newestSamples = await prisma.psamples.findMany({
+        const newestSamples = await prisma.samples_old.findMany({
             where: {
                 audit_id: {
                     in: groupedSamples.map((_) => _.audit_id)
@@ -74,7 +72,7 @@ export async function getPSCSSamples(req: Request, res: Response) {
     // Gets the newest samples that have not been deleted
     // This will be the most common type of request
     if (!deleted && newest) {
-        const groupedSamples = await prisma.psamples.groupBy({
+        const groupedSamples = await prisma.samples_old.groupBy({
             by: ['audit_id'],
             where: {
                 audit_id: {
@@ -86,7 +84,7 @@ export async function getPSCSSamples(req: Request, res: Response) {
             }
         });
 
-        const samples = await prisma.psamples.findMany({
+        const samples = await prisma.samples_old.findMany({
             where: {
                 audit_id: {
                     in: groupedSamples.map((_) => _.audit_id)
@@ -102,7 +100,7 @@ export async function getPSCSSamples(req: Request, res: Response) {
 
     // Gets all samples that havent been deleted
     if (!deleted && !newest) {
-        const samples = await prisma.psamples.findMany({
+        const samples = await prisma.samples_old.findMany({
             where: {
                 audit_id: {
                     notIn: deletedAuditIDs
@@ -114,45 +112,60 @@ export async function getPSCSSamples(req: Request, res: Response) {
     }
 
 }
+
 /**
- * Retrieves a specific PSCS sample from the database
+ * Retrieves a specific ARND sample from the database
  * @param req params: qr_code_key - the qr_code_key of the sample to be returned
  * @param res Contains the sample with the specified qr_code_key
  * @returns
  * * 200 - The sample with the specified qr_code_key
  * * 204 - The sample with the specified qr_code_key was not found
- * * 500 - An error occurred while retrieving the sample
+ * * 500 - An error occurred while retrieving the sample 
  */
-export async function getPSCSSample(req: Request, res: Response) {
+export async function getARNDSample(req: Request, res: Response) {
     const { qr_code_key } = req.params
     try {
-        const sample = await prisma.psamples.findUnique({
+        const sample = await prisma.samples_old.findUnique({
             where: {
                 qr_code_key
             }
-        })
+        });
+
+        // If the sample didnt exist, respond with a 404 (Not Found) and return from the function
+        if (sample === null)
+            return res.status(404).json({ message: `Sample with qr_code_key ${qr_code_key} not found` })
+
         res.status(200).json(sample);
     } catch (error: any) {
-        res.status(204).json({ message: `Sample with qr_code_key ${qr_code_key} not found` })
+        res.status(500).json({ message: error.message })
     }
 }
 
-
 /**
- * Creates a new PSCS sample in the database
- * @param req body: the unhashed sample information to generate a qr_code_key for and add to the database
+ * Creates a new ARND sample based on the given information
+ * @param req The body should contain the sample information
  * @param res The newly created sample
  * @returns
  * * 201 - The sample was successfully created
  * * 500 - An error occurred while creating the sample
  */
-export async function createPSCSSample(req: Request, res: Response) {
-    const sample = req.body
+export async function createARNDSample(req: Request, res: Response) {
+    const sample: ARNDSample = req.body;
+
     try {
         const ksuid = await KSUID.random();
 
-        const newSample = await prisma.psamples.create({
-            data: { ...sample, audit_number: ksuid.timestamp }
+        // If the sample doesnt have a qr_code_key, generate one.
+        // This is currently done in the client but may be removed in the future.
+        // This is done here to ensure that the qr_code_key is always generated
+        if (sample.qr_code_key === undefined)
+            sample.qr_code_key = generateHashKey(sample);
+
+        const newSample = await prisma.samples_old.create({
+            data: {
+                ...sample,
+                audit_number: ksuid.timestamp
+            }
         })
 
         res.status(201).json(newSample)
@@ -170,16 +183,16 @@ export async function createPSCSSample(req: Request, res: Response) {
  * @param req The body should contain the new sample information
  * @param res The newly created sample 
  */
-export async function updatePSCSSample(req: Request, res: Response) {
-    const newSample: PSCSSample = req.body;
+export async function updateARNDSample(req: Request, res: Response) {
+    const newSample: ARNDSample = req.body;
+
     try {
-        const unhashedNewSample: UnhashedPSCSSample | {} = {};
+        var unhashedNewSample: UnhashedARNDSample | {} = {};
 
         for (const key in newSample) {
-            if (key != 'qr_code_key') {
+            if (key !== 'qr_code_key')
                 // @ts-ignore
                 unhashedNewSample[key] = newSample[key];
-            }
         }
 
         const ksuid = await KSUID.random();
@@ -189,12 +202,8 @@ export async function updatePSCSSample(req: Request, res: Response) {
         const newQR = generateHashKey(unhashedNewSample as UnhashedPSCSSample);
         newSample.qr_code_key = newQR;
 
-        const sample = await prisma.psamples.create({
-            data: {
-                ...newSample,
-                audit_id: newSample.audit_id,
-                audit_number: ksuid.timestamp
-            }
+        const sample = await prisma.samples_old.create({
+            data: { ...newSample, audit_id: newSample.audit_id, audit_number: ksuid.timestamp }
         })
 
         res.status(200).json(sample);
